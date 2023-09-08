@@ -1,0 +1,63 @@
+{% extends "geonode-mapstore-client/snippets/topbar.html" %}
+{% load static %}
+{% load custom_tags %}
+
+{% block left_menu %}
+{% subsite_get_base_left_topbar_menu request as BASE_TOPBAR_MENU_LEFT %}
+
+<div class="dropdown">
+    <button
+        class="btn btn-primary dropdown-toggle"
+        type="button"
+        id="gn-topbar-small-menu"
+        data-toggle="dropdown"
+        aria-haspopup="true"
+        aria-expanded="true"
+    >
+        <i class="fa fa-bars"> </i>
+    </button>
+    <ul
+        class="dropdown-menu"
+        aria-labelledby="gn-topbar-small-menu"
+    >
+        {% for menu_item in BASE_TOPBAR_MENU_LEFT %}
+            {% include './menu_item_compact.html' with menu_item=menu_item %}
+        {% endfor %}
+        {% for menu_item in TOPBAR_MENU %}
+            {% include './menu_item_compact.html' with menu_item=menu_item variant='primary' %}
+        {% endfor %}
+        {% for menu_item in TOPBAR_MENU_LEFT %}
+            {% include './menu_item_compact.html' with menu_item=menu_item %}
+        {% endfor %}
+
+    </ul>
+</div>
+<ul class="gn-menu-list">
+    {% for menu_item in BASE_TOPBAR_MENU_LEFT %}
+        {% include './menu_item.html' with menu_item=menu_item variant='primary' %}
+    {% endfor %}
+    {% for menu_item in TOPBAR_MENU %}
+        {% include './menu_item.html' with menu_item=menu_item variant='primary' %}
+    {% endfor %}
+    {% for menu_item in TOPBAR_MENU_LEFT %}
+        {% include './menu_item.html' with menu_item=menu_item variant='primary' %}
+    {% endfor %}
+</ul>
+{% endblock %}
+
+{% block right_menu %}
+{% subsite_get_base_right_topbar_menu request as BASE_TOPBAR_MENU_RIGHT %}
+
+<ul class="gn-menu-list">
+    {% for menu_item in BASE_TOPBAR_MENU_RIGHT %}
+        {% include './menu_item.html' with menu_item=menu_item variant='primary' align_right=True %}
+    {% endfor %}
+    {% for menu_item in TOPBAR_MENU_RIGHT %}
+        {% include './menu_item.html' with menu_item=menu_item variant='primary' align_right=True %}
+    {% endfor %}
+
+    {% block language_selector %}
+        {% include './language_selector.html' with variant='primary' align_right=True %}
+    {% endblock %}
+</ul>
+{% endblock %}

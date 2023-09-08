@@ -1,0 +1,31 @@
+{% extends "geonode-mapstore-client/snippets/search_bar.html" %}
+{% load custom_tags %}
+
+
+{% block searchbar_search_href %}
+{% load_subsite_info request as subsite_slug%}
+
+{% if subsite_slug %}
+    location.href = '/{{subsite_slug}}/catalogue/#/search' + (newQueryHash ? '?' + newQueryHash : '');
+{% else %}
+    location.href = '/catalogue/#/search' + (newQueryHash ? '?' + newQueryHash : '');
+{% endif %}
+
+{% endblock %}
+
+
+{% block searchbar_url_suggestion %}
+{% load_subsite_info request as subsite_slug%}
+
+{% if subsite_slug %}
+    const subsite_url_path = '/{{subsite_slug}}/api/v2/resources';
+{% else %}
+    const subsite_url_path = '/api/v2/resources';
+{% endif %}
+    const url = subsite_url_path +
+        '?page=' + options.page +
+        '&search=' + options.value +
+        '&search_fields=title' +
+        '&search_fields=abstract' +
+        '&filter{metadata_only}=false';
+{% endblock %}

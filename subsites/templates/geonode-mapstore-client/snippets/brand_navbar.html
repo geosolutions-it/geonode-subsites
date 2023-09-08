@@ -1,0 +1,14 @@
+{% extends "geonode-mapstore-client/snippets/brand_navbar.html" %}
+{% load static %}
+
+{% load custom_tags %}
+
+{% block right_menu %}
+{% subsite_get_user_menu request as USER_MENU %}
+
+<ul class="gn-menu-list">
+    {% for menu_item in USER_MENU %}
+        {% include './menu_item.html' with menu_item=menu_item align_right=True %}
+    {% endfor %}
+</ul>
+{% endblock %}
