@@ -8,4 +8,5 @@ class SubSiteAdmin(admin.ModelAdmin):
         "region",
         "category",
         "keyword",
+        "groups"
     )

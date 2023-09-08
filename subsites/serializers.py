@@ -12,7 +12,7 @@ class SubsiteUserSerializer(UserSerializer):
     def to_representation(self, instance):
         # Dehydrate users private fields
         data = super().to_representation(instance)
-        if data.get("perms") and settings.SUBSITE_READ_ONLY:
+        if data.get("perms") and getattr(settings, "SUBSITE_READ_ONLY", False):
             data["perms"] = ["view_resourcebase"]
         return data
 
@@ -22,7 +22,7 @@ def apply_subsite_changes(data, request):
     data["detail_url"] = data["detail_url"].replace(
         "catalogue/", f"{subsite}/catalogue/"
     )
-    if settings.SUBSITE_READ_ONLY:
+    if getattr(settings, "SUBSITE_READ_ONLY", False):
         data["perms"] = ["view_resourcebase"]
     data["download_url"] = None
     return data

@@ -10,6 +10,7 @@ class SubSite(models.Model):
         max_length=250,
         null=False,
         blank=False,
+        unique=True,
         help_text="Sub site name, formatted as slug. This slug is going to be used as path for access the subsite",
     )
     theme = models.ForeignKey(

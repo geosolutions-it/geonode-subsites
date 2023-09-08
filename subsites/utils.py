@@ -8,7 +8,7 @@ def extract_subsite_slug_from_request(request):
     """
     Return the Subsite object or None if not exists or not Enabled
     """
-    if settings.ENABLE_SUBSITE_CUSTOM_THEMES:
+    if getattr(settings, "ENABLE_SUBSITE_CUSTOM_THEMES", False):
         url = request.path.split("/")
         split_path = list(filter(None, url))
         if split_path:
