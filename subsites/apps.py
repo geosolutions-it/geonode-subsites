@@ -82,6 +82,7 @@ def run_setup_hooks(*args, **kwargs):
         ),
         re_path(r"^(?P<subsite>[^/]*)", views.subsite_home, name="subsite_home"),
     ]
+    LOCAL_ROOT = os.path.abspath(os.path.dirname(__file__))
 
-    settings.TEMPLATES[0]["DIRS"].insert(0, os.path.join(settings.LOCAL_ROOT, "templates"))
+    settings.TEMPLATES[0]["DIRS"].insert(0, os.path.join(LOCAL_ROOT, "templates"))
     settings.CONTEXT_PROCESSORS += ["subsites.context_processors.custom_theme"]
