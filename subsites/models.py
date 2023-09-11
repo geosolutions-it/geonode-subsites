@@ -1,10 +1,25 @@
-from django.db import models
-from geonode.themes.models import GeoNodeThemeCustomization
-from geonode.base.models import Region, HierarchicalKeyword, TopicCategory, GroupProfile
-from django.db.models import Q
+import logging
+import operator
+from functools import reduce
 
+from django.db import models
+from django.db.models import Q
+from geonode.base.models import (GroupProfile, HierarchicalKeyword, Region,
+                                 TopicCategory)
+from geonode.themes.models import GeoNodeThemeCustomization
+
+logger = logging.getLogger(__name__)
 
 class SubSite(models.Model):
+    RESOURCE_TYPE = (
+        ("document", "document"),
+        ("map", "map"),
+        ("dataset", "dataset"),
+        ("dashboard", "dashboard"),
+        ("geoapp", "geoapp"),
+        ("geostory", "geostory"),
+    )
+
     slug = models.SlugField(
         verbose_name="Site name",
         max_length=250,
@@ -14,7 +29,7 @@ class SubSite(models.Model):
         help_text="Sub site name, formatted as slug. This slug is going to be used as path for access the subsite",
     )
     theme = models.ForeignKey(
-        GeoNodeThemeCustomization, on_delete=models.SET_NULL, null=True
+        GeoNodeThemeCustomization, on_delete=models.SET_NULL, null=True, default=None
     )
 
     region = models.ManyToManyField(Region, null=True, blank=True, default=None)
@@ -25,6 +40,10 @@ class SubSite(models.Model):
         HierarchicalKeyword, null=True, blank=True, default=None
     )
     groups = models.ManyToManyField(GroupProfile, null=True, blank=True, default=None)
+
+    resource_type = models.CharField(
+        null=True, blank=True, default=None, choices=RESOURCE_TYPE, max_length=100
+    )
 
     def __str__(self) -> str:
         return self.slug
@@ -47,36 +66,40 @@ class SubSite(models.Model):
         _group_filter = self._define_or_filter(
             "group", list(self.groups.values_list("id", flat=True))
         )
-
-        return (
-            qr.filter(_region_filter)
-            .filter(_category_filter)
-            .filter(_keyword_filter)
-            .filter(_group_filter)
+        _resource_type_filter = self._define_or_filter(
+            "resource_type", filter(None, [self.resource_type])
         )
+
+        _filters = list(filter(
+            None,
+            [
+                _region_filter,
+                _category_filter,
+                _keyword_filter,
+                _group_filter,
+                _resource_type_filter,
+            ],
+        ))
+        if not _filters:
+            return qr
+        return qr.filter(reduce(operator.and_, _filters))
 
     def _define_or_filter(self, key, iterable):
         match key:
             case "regions":
                 queries = [Q(regions=value) for value in iterable]
-                if not queries:
-                    query = Q(regions=None)
             case "category":
                 queries = [Q(category=value) for value in iterable]
-                if not queries:
-                    query = Q(category=None)
             case "keywords":
                 queries = [Q(keywords=value) for value in iterable]
-                if not queries:
-                    query = Q(keywords=None)
             case "group":
                 queries = [Q(group__groupprofile=value) for value in iterable]
-                if not queries:
-                    query = Q(group__groupprofile=None)
+            case "resource_type":
+                queries = [Q(resource_type=value) for value in iterable]
             case _:
                 return None
         if not queries:
-            return query
+            return None
         query = queries.pop()
         for item in queries:
             query |= item

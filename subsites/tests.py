@@ -105,6 +105,23 @@ class SubsitePrefilterTestCase(APITestCase):
         cls.subsite_groups.groups.add(*[cls.group_noob, cls.group_expert])
         cls.subsite_groups.region.add(*[cls.region_italy, cls.region_japan])
 
+        cls.subsite_datasets, _ = SubSite.objects.get_or_create(
+            slug="subsite_dataset",
+            theme=cls.theme1,
+            resource_type='dataset'
+        )
+
+        cls.subsite_geoapp, _ = SubSite.objects.get_or_create(
+            slug="subsite_geoapp",
+            theme=cls.theme1,
+            resource_type='geoapp'
+        )
+
+        cls.subsite_no_condition, _ = SubSite.objects.get_or_create(
+            slug="subsite_no_condition",
+            theme=cls.theme1,
+        )
+
     def _create_datasets(cls):
         cls.hiking_dataset = create_single_dataset(
             name="hiking_dataset",
@@ -198,13 +215,13 @@ class SubsitePrefilterTestCase(APITestCase):
         """
         Subsite regions
             - keyword: null
-            - region: japan, italy
+            - region: japan
             - group: null
             - category: null
         Should match: None
         """
         url = reverse("base-resources-list", args=[self.subsite_regions.slug])
-        expected_total = 0
+        expected_total = 5
 
         self.client.force_login(get_user_model().objects.get(username="admin"))
         result = self.client.get(url)
@@ -242,11 +259,11 @@ class SubsitePrefilterTestCase(APITestCase):
             - region: italy, japan
             - group: noob, expert
             - category: null
-        Should match: dataset_noob, dataset_expert
+        Should match: dataset_noob, dataset_expert, hiking_dataset
         """
         url = reverse("base-resources-list", args=[self.subsite_groups.slug])
-        expected_total = 2
-        expected_datasets = [self.dataset_noob.id, self.dataset_expert.id]
+        expected_total = 3
+        expected_datasets = [self.dataset_noob.id, self.dataset_expert.id, self.hiking_dataset.id]
         self.client.force_login(get_user_model().objects.get(username="admin"))
         result = self.client.get(url)
         self.assertEqual(200, result.status_code)
@@ -258,3 +275,72 @@ class SubsitePrefilterTestCase(APITestCase):
         pk_in_data_response = [int(val["pk"]) for val in data["resources"]]
 
         self.assertListEqual(expected_datasets, pk_in_data_response)
+
+    def test_subsite_subsite_no_condition(self):
+        """
+        Subsite subsite_no_condition
+            - keyword: null
+            - region: null
+            - group: null
+            - category: null
+            - resource_type: null
+        Should match: all dataset defined above
+        """
+        url = reverse("base-resources-list", args=[self.subsite_no_condition.slug])
+        expected_total = 6
+        self.client.force_login(get_user_model().objects.get(username="admin"))
+        result = self.client.get(url)
+        self.assertEqual(200, result.status_code)
+
+        data = result.json()
+
+        self.assertEqual(expected_total, data["total"])
+
+
+    def test_subsite_geoapp(self):
+        """
+        Subsite subsite_geoapp
+            - keyword: null
+            - region: null
+            - group: null
+            - category: null
+            - resource_type: geoapp
+        Should match: None dataset defined above
+        """
+        url = reverse("base-resources-list", args=[self.subsite_geoapp.slug])
+        expected_total = 0
+        self.client.force_login(get_user_model().objects.get(username="admin"))
+        result = self.client.get(url)
+        self.assertEqual(200, result.status_code)
+
+        data = result.json()
+
+        self.assertEqual(expected_total, data["total"])
+
+        resource_type_returned = list(set([val["resource_type"] for val in data["resources"]]))
+
+        self.assertListEqual([], resource_type_returned)
+
+    def test_subsite_dataset(self):
+        """
+        Subsite subsite_datasets
+            - keyword: null
+            - region: null
+            - group: null
+            - category: null
+            - resource_type: datasets
+        Should match: None dataset defined above
+        """
+        url = reverse("base-resources-list", args=[self.subsite_datasets.slug])
+        expected_total = 6
+        self.client.force_login(get_user_model().objects.get(username="admin"))
+        result = self.client.get(url)
+        self.assertEqual(200, result.status_code)
+
+        data = result.json()
+
+        self.assertEqual(expected_total, data["total"])
+
+        resource_type_returned = list(set([val["resource_type"] for val in data["resources"]]))
+
+        self.assertListEqual(["dataset"], resource_type_returned)
