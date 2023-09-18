@@ -4,7 +4,7 @@ from django.shortcuts import get_object_or_404
 from subsites.models import SubSite
 
 
-def extract_subsite_slug_from_request(request):
+def extract_subsite_slug_from_request(request, return_object=True):
     """
     Return the Subsite object or None if not exists or not Enabled
     """
@@ -14,7 +14,13 @@ def extract_subsite_slug_from_request(request):
         if split_path:
             subsite_name = split_path[0]
             try:
-                return get_object_or_404(SubSite, slug=subsite_name)
+                x = SubSite.objects.filter(slug=subsite_name)
+                if x.exists():
+                    if return_object:
+                        return x.first()
+                    else:
+                        return subsite_name
+                return None
             except Exception:
                 return None
     return None
