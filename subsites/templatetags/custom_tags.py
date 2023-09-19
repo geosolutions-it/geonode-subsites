@@ -8,6 +8,7 @@ from geonode_mapstore_client.templatetags.get_menu_json import (
     get_base_right_topbar_menu,
 )
 from django.conf import settings
+from subsites import project_dir
 
 register = template.Library()
 
@@ -48,6 +49,11 @@ def subsite_get_base_right_topbar_menu(context, request):
 @register.simple_tag
 def site_url():
     return getattr(settings, "SITEURL", "http://localhost:8000")
+
+@register.simple_tag
+def custom_geonode_config_exists(slug):
+    _path = f"{project_dir}/templates/{slug}/_geonode_config.html"
+    return _path if os.path.exists(_path) else False
 
 
 def _update_url_with_subsite(result, subsite):

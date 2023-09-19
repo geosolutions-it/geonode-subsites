@@ -17,10 +17,7 @@ def subsite_home(request, subsite):
     slug = extract_subsite_slug_from_request(request)
     if not slug:
         raise Http404
-    
-    slug_index = f"{project_dir}/templates/{slug}/index.html"
-    if os.path.exists(slug_index):
-        return render(request, slug_index)
+
     return render(request, "index.html")
 
 

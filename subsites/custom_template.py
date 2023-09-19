@@ -5,6 +5,7 @@ from django.template.backends.django import (DjangoTemplates, make_context,
                                              reraise)
 
 from subsites import project_dir
+from pathlib import Path
 from subsites.utils import extract_subsite_slug_from_request
 from django.template.loaders.filesystem import Loader
 
@@ -47,10 +48,11 @@ class CustomSubsiteTemplate:
         context = make_context(context, request, autoescape=self.backend.engine.autoescape)
         slug = extract_subsite_slug_from_request(request, return_object=False)
         try:
+            self.template.name = Path(self.template.name).name
             custom_template_path = f'{project_dir}/templates/{slug}/{self.template.name}'
             if slug and os.path.exists(custom_template_path):
                 source = self.template.engine.template_loaders[0].get_contents(self.origin, custom_template_path)
-                self.template.source(source)
+                self.template.source = source
                 
             return self.template.render(context)
         except TemplateDoesNotExist as exc:
