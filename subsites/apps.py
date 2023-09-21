@@ -27,6 +27,6 @@ def run_setup_hooks(*args, **kwargs):
     LOCAL_ROOT = os.path.abspath(os.path.dirname(__file__))
 
     settings.TEMPLATES[0]["DIRS"].insert(0, os.path.join(LOCAL_ROOT, "templates"))
-    settings.TEMPLATES[0]["OPTIONS"].update({"loaders": ["subsites.custom_template.SubsiteTemplateLoader", "django.template.loaders.filesystem.Loader", "django.template.loaders.app_directories.Loader"]})
-    settings.TEMPLATES[0]["BACKEND"] = "subsites.custom_template.SubsiteTemplateBackend"    
+    #settings.TEMPLATES[0]["OPTIONS"].update({"loaders": ["subsites.custom_template.SubsiteTemplateLoader", "django.template.loaders.filesystem.Loader", "django.template.loaders.app_directories.Loader"]})
+    #settings.TEMPLATES[0]["BACKEND"] = "subsites.custom_template.SubsiteTemplateBackend"    
     settings.CONTEXT_PROCESSORS += ["subsites.context_processors.custom_theme"]

@@ -1,7 +1,7 @@
 import os
 
 from django.http import Http404
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import render
 from django.views.generic import TemplateView
 from geonode.base.api.views import ResourceBaseViewSet, UserViewSet
 from geonode.documents.api.views import DocumentViewSet
@@ -9,16 +9,16 @@ from geonode.geoapps.api.views import GeoAppViewSet
 from geonode.layers.api.views import DatasetViewSet
 from geonode.maps.api.views import MapViewSet
 
-from subsites import project_dir, serializers
-from subsites.utils import extract_subsite_slug_from_request
+from subsites import serializers
+from subsites.utils import extract_subsite_slug_from_request, subsite_render
 
 
 def subsite_home(request, subsite):
-    slug = extract_subsite_slug_from_request(request)
+    slug = extract_subsite_slug_from_request(request, return_object=False)
     if not slug:
         raise Http404
 
-    return render(request, "index.html")
+    return subsite_render(request, "index.html", slug=slug)
 
 
 def bridge_view(request, subsite, **kwargs):
