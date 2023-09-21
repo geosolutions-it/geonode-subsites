@@ -2,6 +2,7 @@ from django.conf import settings
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django.template import TemplateDoesNotExist
+from django.core.exceptions import ImproperlyConfigured
 
 from subsites.models import SubSite
 
@@ -34,48 +35,23 @@ def subsite_get_template(template_name, using=None, slug=None):
 
     Raise TemplateDoesNotExist if no such template exists.
     """
-    chain = []
-    #from django.template.loader import _engine_list
     from subsites import project_dir
     from django.template.backends.django import DjangoTemplates
     _path = f"{project_dir}/templates/{slug}/"
-    tpl = {
-        "NAME": "Subsite Engine",
-        "DIRS": [_path] + settings.TEMPLATES[0]["DIRS"],
-        "APP_DIRS": False,
-        "OPTIONS": {
-            "loaders": ['django.template.loaders.filesystem.Loader', 'django.template.loaders.app_directories.Loader'],
-            "debug": True,
-            "context_processors": ['django.template.context_processors.debug',
-'django.template.context_processors.i18n',
-'django.template.context_processors.tz',
-'django.template.context_processors.request',
-'django.template.context_processors.media',
-'django.template.context_processors.static',
-'django.contrib.auth.context_processors.auth',
-'django.contrib.messages.context_processors.messages',
-'django.contrib.auth.context_processors.auth',
-'geonode.context_processors.resource_urls',
-'geonode.themes.context_processors.custom_theme',
-'geonode.geoserver.context_processors.geoserver_urls',
-'geonode_mapstore_client.context_processors.resource_urls',
-'subsites.context_processors.custom_theme']
-        }
-    }
-    engine = DjangoTemplates(tpl)
+    payload = {}
+    options = subsite_get_settings()
+    for template in options:
+        if template == 'GeoNode Project Templates':
+            payload = options[template].copy()
+            break
+
+    payload.pop('BACKEND')
+    payload['DIRS'].insert(0, _path)
+
+    engine = DjangoTemplates(payload)
+
     return engine.get_template(template_name)
-    #engines = _engine_list(using)
-    #for engine in engines:
-    #    try:
-    #        _path = f"{project_dir}/templates/{slug}/"
-    #        engine.engine.dirs.insert(0, _path)
-    #        _template = engine.get_template(template_name)
-    #        engine.engine.dirs = engine.engine.dirs[1:]
-    #        return _template
-    #    except TemplateDoesNotExist as e:
-    #        chain.append(e)
-#
-    raise TemplateDoesNotExist(template_name, chain=chain)
+
 
 def subsite_render_to_string(template_name, context=None, request=None, using=None, slug=None):
     """
@@ -96,3 +72,29 @@ def subsite_render(request, template_name, context=None, content_type=None, stat
 
     content = subsite_render_to_string(template_name, context, request, using=using, slug=slug)
     return HttpResponse(content, content_type, status)
+
+
+def subsite_get_settings():
+    _templates = settings.TEMPLATES
+    templates = {}
+    for tpl in _templates:
+        try:
+            # This will raise an exception if 'BACKEND' doesn't exist or
+            # isn't a string containing at least one dot.
+            default_name = tpl['BACKEND'].rsplit('.', 2)[-2]
+        except Exception:
+            invalid_backend = tpl.get('BACKEND', '<not defined>')
+            raise ImproperlyConfigured(
+                "Invalid BACKEND for a template engine: {}. Check "
+                "your TEMPLATES setting.".format(invalid_backend))
+
+        tpl = {
+            'NAME': default_name,
+            'DIRS': [],
+            'APP_DIRS': False,
+            'OPTIONS': {},
+            **tpl,
+        }
+        templates[tpl['NAME']] = tpl
+
+    return templates
