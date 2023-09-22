@@ -140,3 +140,9 @@ def subsite_home(request, subsite):
 
     return subsite_render(request, "index.html", slug=slug)
 ```
+
+The function requires 3 parameters:
+
+- `request`: Request object, easily obtainable by the view param
+- `template_name`: name of the html file to render example `index.html`
+- `slug`: The subsite slug. Can be obtained by the request object using the utility function `extract_subsite_slug_from_request`
