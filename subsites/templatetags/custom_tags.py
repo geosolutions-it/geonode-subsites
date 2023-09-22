@@ -50,14 +50,6 @@ def subsite_get_base_right_topbar_menu(context, request):
 def site_url():
     return getattr(settings, "SITEURL", "http://localhost:8000")
 
-@register.simple_tag
-def custom_file_exists(slug, template_name):
-    if template_name == 'geonode_config':
-        # django raise error for template name with an _
-        template_name = '_geonode_config'
-    _path = f"{project_dir}/templates/{slug}/{template_name}.html"
-    return _path if os.path.exists(_path) else False
-
 
 def _update_url_with_subsite(result, subsite):
     for element in result:
