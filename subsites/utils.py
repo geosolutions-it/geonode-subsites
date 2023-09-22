@@ -1,4 +1,5 @@
 import os
+from copy import deepcopy
 from django.conf import settings
 from django.http import HttpResponse
 from django.core.exceptions import ImproperlyConfigured
@@ -48,7 +49,7 @@ def subsite_render_to_string(template_name, context=None, request=None, using=No
     # then we can copy the params from it to init the template engine
     for template in options:
         if template == 'GeoNode Project Templates':
-            payload = options[template].copy()
+            payload = deepcopy(options[template])
             break
     # the key backend is not needed so we pop it out
     payload.pop('BACKEND')
@@ -69,7 +70,7 @@ def subsite_render_to_string(template_name, context=None, request=None, using=No
 
 
 
-def subsite_render(request, template_name, context=None, content_type=None, status=None, using=None, slug=None):
+def subsite_render(request, template_name, slug, context=None, content_type=None, status=None, using=None):
     """
     Used instead of the default django render function.
     This is needed since we can dynamically load the subsite

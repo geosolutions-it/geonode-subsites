@@ -90,4 +90,7 @@ class SubsiteCatalogueViewSet(TemplateView):
         if subsite is None:
             raise Http404("Subsite does not exists")
         context = self.get_context_data(**kwargs)
-        return self.render_to_response(context)
+        slug = extract_subsite_slug_from_request(request, return_object=False)
+        if not slug:
+            raise Http404
+        return subsite_render(request, context["view"].template_name, context=context, slug=slug)
