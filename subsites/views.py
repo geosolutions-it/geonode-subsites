@@ -1,14 +1,12 @@
-import os
-
 from django.http import Http404
-from django.shortcuts import render
+from django.shortcuts import get_object_or_404
 from django.views.generic import TemplateView
 from geonode.base.api.views import ResourceBaseViewSet, UserViewSet
 from geonode.documents.api.views import DocumentViewSet
 from geonode.geoapps.api.views import GeoAppViewSet
 from geonode.layers.api.views import DatasetViewSet
 from geonode.maps.api.views import MapViewSet
-
+from geonode.views import handler404
 from subsites import serializers
 from subsites.utils import extract_subsite_slug_from_request, subsite_render
 
@@ -16,7 +14,7 @@ from subsites.utils import extract_subsite_slug_from_request, subsite_render
 def subsite_home(request, subsite):
     slug = extract_subsite_slug_from_request(request, return_object=False)
     if not slug:
-        raise Http404
+        return handler404(request, None)
 
     return subsite_render(request, "index.html", slug=slug)
 
@@ -88,9 +86,9 @@ class SubsiteCatalogueViewSet(TemplateView):
     def get(self, request, *args, **kwargs):
         subsite = extract_subsite_slug_from_request(request)
         if subsite is None:
-            raise Http404("Subsite does not exists")
+            raise handler404(request, None)
         context = self.get_context_data(**kwargs)
         slug = extract_subsite_slug_from_request(request, return_object=False)
         if not slug:
-            raise Http404
+            raise handler404(request, None)
         return subsite_render(request, context["view"].template_name, context=context, slug=slug)

@@ -23,7 +23,7 @@ router.register(r"datasets", views.SubsiteDatasetViewSet, "datasets")
 router.register(r"maps", views.SubsiteMapViewSet, "maps")
 router.register(r"executionrequest", ExecutionRequestViewset, "executionrequest")
 
-urlpatterns =[
+urlpatterns = [
         re_path(
             r"^(?P<subsite>[^/]*)/api/o/v4/tokeninfo",
             views.bridge_view,
