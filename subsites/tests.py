@@ -1,3 +1,4 @@
+from mock import MagicMock, patch
 from subsites.models import SubSite
 from django.shortcuts import reverse
 from geonode.base.models import GroupProfile, HierarchicalKeyword, Region, TopicCategory
@@ -8,8 +9,10 @@ from geonode.themes.models import GeoNodeThemeCustomization
 from rest_framework.test import APITestCase
 from django.contrib.auth import get_user_model
 
+from subsites.views import bridge_view
 
-class SubsitePrefilterTestCase(APITestCase):
+
+class SubsiteTestCase(APITestCase):
     fixtures = [
         "initial_data.json",
         "group_test_data.json",
@@ -164,7 +167,11 @@ class SubsitePrefilterTestCase(APITestCase):
         )
         cls.dataset_noob.regions.add(*[cls.region_japan])
         cls.dataset_noob.save()
-
+    
+    '''
+    Pre -filter testcases
+    '''
+    
     def test_subsite_sport(self):
         """
         Subsite sport:
@@ -344,3 +351,28 @@ class SubsitePrefilterTestCase(APITestCase):
         resource_type_returned = list(set([val["resource_type"] for val in data["resources"]]))
 
         self.assertListEqual(["dataset"], resource_type_returned)
+
+    '''
+    View test cases
+    '''    
+    
+    def test_bridge_view_call_the_expected_url(self):
+        mocked_view = MagicMock()
+        kwargs = {"view": mocked_view}
+        
+        bridge_view("request", "slug", **kwargs)
+        
+        mocked_view.assert_called_once()
+
+    def test_subsite_home_raise_404_for_not_existing_subsite(self):
+        response = self.client.get(reverse('subsite_home', args=['not_existing_subsite']), follow=True)
+        self.assertEqual(404, response.status_code)
+        
+    def test_subsite_catalogue_return_404(self):
+        response = self.client.get(f"not_existing_subsite/catalogue/", follow=True)
+        self.assertEqual(404, response.status_code)
+    
+        
+    def test_subsite_home_is_redirected_to_be_rendered(self):
+        response = self.client.get(reverse('subsite_home', args=[self.subsite_datasets.slug]))
+        self.assertEqual(200, response.status_code)

@@ -1,3 +1,4 @@
+import os
 from django import template
 
 from subsites.utils import extract_subsite_slug_from_request
@@ -6,6 +7,8 @@ from geonode_mapstore_client.templatetags.get_menu_json import (
     get_user_menu,
     get_base_right_topbar_menu,
 )
+from django.conf import settings
+from subsites import project_dir
 
 register = template.Library()
 
@@ -42,6 +45,11 @@ def subsite_get_base_right_topbar_menu(context, request):
         return []
     return get_base_right_topbar_menu(context)
 
+# settings value
+@register.simple_tag
+def site_url():
+    return getattr(settings, "SITEURL", "http://localhost:8000")
+
 
 def _update_url_with_subsite(result, subsite):
     for element in result:
@@ -52,3 +60,4 @@ def _update_url_with_subsite(result, subsite):
                 if item.get("type", "") == "link":
                     item["href"] = f"/{subsite}{item['href']}"
     return result
+

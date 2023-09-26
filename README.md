@@ -62,3 +62,93 @@ Keyword selected for subsite1 -> key1
 Region selected for subsite1 -> Italy
 means that only the resources with associated the keyword `key1` and as region `Italy` are going to be returned
 ```
+
+# Override Subsite template
+
+Follows an example folder about how-to organize the subsite template folder to be able to have a custom template for each subsite.
+
+## Folder structure
+
+- The folder name **MUST** match the subsite slug defined via django-admin page
+- The folder structure must match the one normally created for an override.
+
+For example, let's assume that we want to override the `topbar.html` for a specific subsite named `subsite_1` and `subsite_2`
+
+The folder structure must match the one normally used for an override, The template folder inside the path subsites/templates should look similar to this one
+
+```bash
+.
+└── subsite_1
+    └── geonode-mapstore-client
+        └── snippets
+            └── topbar.html
+└── subsite_2
+    └── geonode-mapstore-client
+        └── snippets
+            └── topbar.html        
+```
+
+## Global override
+
+The code offers also the possibility to globally override the code for the subsites.
+
+To do it, is enough to place the file in the main `templates` folder of the app outside from any subsite directory.
+
+
+## Example 
+```bash
+templates
+├── geonode-mapstore-client
+│   ├── _geonode_config.html
+│   ├── index.html
+│   └── snippets
+│       ├── brand_navbar.html
+│       ├── search_bar.html
+│       └── topbar.html
+└── common
+│    └── geonode-mapstore-client
+│        └── snippets
+│            └── topbar.html
+└── subsite_1
+    └── geonode-mapstore-client
+        └── snippets
+            └── topbar.html
+
+```
+
+The example above:
+- **ALL** the subsite will use the override templates available under the `geonode-mapstore-client` table under the root `templates`
+- `subsite_1` will get the `topbar.html` from it's specific subsite template folder
+- All the other templates are taken by the common folder if the filw is available otherwise from the default dirs
+
+## Let a spefici URLs use the 
+
+Subsite doesnt follow the default django "render" function since we have to handle the template dirs dinamically.
+
+To let a specific urls works with this system (example profile, metadata etc..)
+
+1) register the URL in the `subsites/urls.py`
+example 
+
+```python
+re_path(r"^(?P<subsite>[^/]*)", views.subsite_home, name="subsite_home")
+```
+
+2) Define the function in `views.py`
+
+```python
+def subsite_home(request, subsite):
+    slug = extract_subsite_slug_from_request(request, return_object=False)
+    if not slug:
+        raise Http404
+
+    return subsite_render(request, "index.html", slug=slug)
+```
+
+The function requires 3 parameters:
+
+- `request`: Request object, easily obtainable by the view param
+- `template_name`: name of the html file to render example `index.html`
+- `slug`: The subsite slug. Can be obtained by the request object using the utility function `extract_subsite_slug_from_request`
+
+
