@@ -105,6 +105,10 @@ templates
 │       ├── brand_navbar.html
 │       ├── search_bar.html
 │       └── topbar.html
+└── common
+│    └── geonode-mapstore-client
+│        └── snippets
+│            └── topbar.html
 └── subsite_1
     └── geonode-mapstore-client
         └── snippets
@@ -115,7 +119,7 @@ templates
 The example above:
 - **ALL** the subsite will use the override templates available under the `geonode-mapstore-client` table under the root `templates`
 - `subsite_1` will get the `topbar.html` from it's specific subsite template folder
-- All the other templates are taken by the default dirs
+- All the other templates are taken by the common folder if the filw is available otherwise from the default dirs
 
 ## Let a spefici URLs use the 
 
@@ -146,3 +150,5 @@ The function requires 3 parameters:
 - `request`: Request object, easily obtainable by the view param
 - `template_name`: name of the html file to render example `index.html`
 - `slug`: The subsite slug. Can be obtained by the request object using the utility function `extract_subsite_slug_from_request`
+
+

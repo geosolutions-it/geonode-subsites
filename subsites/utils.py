@@ -42,6 +42,7 @@ def subsite_render_to_string(template_name, context=None, request=None, using=No
     """
     # creating the subsite template path
     _path = f"{project_dir}/templates/{slug}/"
+    _common_path = f"{project_dir}/templates/common/"
     payload = {}
     # retrieve the settings information
     options = subsite_get_settings()
@@ -56,9 +57,10 @@ def subsite_render_to_string(template_name, context=None, request=None, using=No
     # if the subsite template path exsits, we will add it 
     # as first in the template dir lists so it will match during
     # the  rendering
+    payload['DIRS'].insert(0, _common_path)
+    
     if os.path.exists(_path):
         payload['DIRS'].insert(0, _path)
-
     # we initiate the Template Engine with the above payload
     engine = DjangoTemplates(payload)
 
