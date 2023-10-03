@@ -29,7 +29,7 @@ class SubSite(models.Model):
         help_text="Sub site name, formatted as slug. This slug is going to be used as path for access the subsite",
     )
     theme = models.ForeignKey(
-        GeoNodeThemeCustomization, on_delete=models.SET_NULL, null=True, default=None
+        GeoNodeThemeCustomization, on_delete=models.SET_NULL, null=True, default=None, blank=True
     )
 
     region = models.ManyToManyField(Region, null=True, blank=True, default=None)

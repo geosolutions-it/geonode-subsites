@@ -20,10 +20,7 @@ def run_setup_hooks(*args, **kwargs):
     # from geonode.api.urls import router
     import os
     from django.conf import settings
-    from geonode.urls import urlpatterns
-    from subsites.urls import urlpatterns as subsite_url_patterns
 
-    urlpatterns += subsite_url_patterns
     LOCAL_ROOT = os.path.abspath(os.path.dirname(__file__))
 
     settings.TEMPLATES[0]["DIRS"].insert(0, os.path.join(LOCAL_ROOT, "templates"))  
