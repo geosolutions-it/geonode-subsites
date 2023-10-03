@@ -41,8 +41,8 @@ def subsite_render_to_string(template_name, context=None, request=None, using=No
     The subsite template structure must match the default geonode one
     """
     # creating the subsite template path
-    _path = f"{project_dir}/templates/{slug}/"
-    _common_path = f"{project_dir}/templates/common/"
+    _project_path = f"{settings.LOCAL_ROOT}/templates/subsites/{slug}/"
+    _project_common_path = f"{settings.LOCAL_ROOT}/templates/subsites/common/"
     payload = {}
     # retrieve the settings information
     options = subsite_get_settings()
@@ -57,10 +57,11 @@ def subsite_render_to_string(template_name, context=None, request=None, using=No
     # if the subsite template path exsits, we will add it 
     # as first in the template dir lists so it will match during
     # the  rendering
-    payload['DIRS'].insert(0, _common_path)
-    
-    if os.path.exists(_path):
-        payload['DIRS'].insert(0, _path)
+    _paths = [_project_common_path, _project_path]
+    for _single_path in _paths:
+        if os.path.exists(_single_path):
+            payload['DIRS'].insert(0, _single_path)
+
     # we initiate the Template Engine with the above payload
     engine = DjangoTemplates(payload)
 
