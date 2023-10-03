@@ -23,15 +23,18 @@ from geonode.themes.context_processors import custom_theme as geonode_custom_the
 
 def custom_theme(request, *args, **kwargs):
     custom_theme_payload = geonode_custom_theme(request)
+    subsite_obj = extract_subsite_slug_from_request(request)    
     if getattr(settings, "ENABLE_SUBSITE_CUSTOM_THEMES", False):
-        subsite_obj = extract_subsite_slug_from_request(request)
         if subsite_obj:
             theme = subsite_obj.theme
-            slides = theme.jumbotron_slide_show.filter(is_enabled=True)
-            theme.is_enabled = True
-            custom_theme_payload = {
-                "custom_theme": theme or {},
-                "slides": slides if slides.exists() else [],
-            }
+            if theme:
+                slides = theme.jumbotron_slide_show.filter(is_enabled=True)
+                theme.is_enabled = True
+                custom_theme_payload = {
+                    "custom_theme": theme or {},
+                    "slides": slides if slides.exists() else [],
+                }
+    if subsite_obj:
+        custom_theme_payload['slug'] = subsite_obj.slug
 
     return custom_theme_payload

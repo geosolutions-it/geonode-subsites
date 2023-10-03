@@ -17,6 +17,15 @@ INSTALLED_APPS += ("subsites",)
 `SUBSITE_READ_ONLY:` make the subsites read-only for all the users
 
 
+## Include URLS
+
+include the following into the project URLs.py
+
+```python
+url(r"", include("subsites.urls")),
+```
+
+
 ## How to configure a subsite
 
 The subsite are configurable ONLY via django admin
