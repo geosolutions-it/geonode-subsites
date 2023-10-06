@@ -25,12 +25,7 @@ class SubsiteAdminModelForm(forms.ModelForm):
         subtypes = [
             (f"dataset__{x}", f"Dataset - {x.title()}") for x in LAYER_TYPES
         ] + [
-            (f"document__{x}", f"Document - {x.title()}")
-            for x in (
-                set(settings.ALLOWED_DOCUMENT_TYPES + list(DOCUMENT_TYPE_MAP.values()))
-            )
-        ] + [
-            (f"geoapp__{x}", f"GeoApp - {x.title()}")
+            (f"{x}", f"GeoApp - {x.title()}")
             for x in settings.CLIENT_APP_LIST
         ]
 
