@@ -21,7 +21,7 @@ def extract_subsite_slug_from_request(request, return_object=True):
         if split_path:
             subsite_name = split_path[0]
             cached_value = subsite_cache.get(subsite_name)
-            if subsite_cache.get(subsite_name):
+            if cached_value:
                 if return_object:
                     return cached_value
                 else:

@@ -56,5 +56,5 @@ urlpatterns = [
             r"^(?P<subsite>[^/]*)/catalogue/",
             views.SubsiteCatalogueViewSet.as_view(template_name="geonode-mapstore-client/catalogue.html"),
         ),
-        re_path(r"^(?P<subsite>[^/]*)", views.subsite_home, name="subsite_home"),
+        re_path(r"^(?P<subsite>[^/]*)/$", views.subsite_home, name="subsite_home"),
     ]

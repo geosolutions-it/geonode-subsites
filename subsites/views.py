@@ -1,5 +1,5 @@
-from django.http import Http404
-from django.shortcuts import get_object_or_404
+from datetime import datetime
+from django.conf import settings
 from django.views.generic import TemplateView
 from geonode.base.api.views import ResourceBaseViewSet, UserViewSet
 from geonode.documents.api.views import DocumentViewSet
@@ -12,7 +12,9 @@ from subsites.utils import extract_subsite_slug_from_request, subsite_render
 
 
 def subsite_home(request, subsite):
+    start = datetime.now()
     slug = extract_subsite_slug_from_request(request, return_object=False)
+    print(f"{slug} {datetime.now() - start}")
     if not slug:
         return handler404(request, None)
 
