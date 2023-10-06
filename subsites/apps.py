@@ -25,3 +25,11 @@ def run_setup_hooks(*args, **kwargs):
 
     settings.TEMPLATES[0]["DIRS"].insert(0, os.path.join(LOCAL_ROOT, "templates"))  
     settings.CONTEXT_PROCESSORS += ["subsites.context_processors.custom_theme"]
+
+    settings.CACHES['subsite_cache'] = {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'TIMEOUT': 300,
+        'OPTIONS': {
+            'MAX_ENTRIES': 10000
+        }
+    }

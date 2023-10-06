@@ -1,4 +1,3 @@
-import ast
 import logging
 import operator
 from functools import reduce
@@ -8,6 +7,12 @@ from django.db.models import Q
 from geonode.base.models import GroupProfile, HierarchicalKeyword, Region, TopicCategory
 from geonode.themes.models import GeoNodeThemeCustomization
 from django.contrib.postgres.fields import ArrayField
+
+from django.dispatch import receiver
+from django.db.models import signals
+
+from django.core.cache import caches
+
 
 logger = logging.getLogger(__name__)
 
@@ -90,7 +95,6 @@ class SubSite(models.Model):
             case "group":
                 queries = [Q(group__groupprofile=value) for value in iterable]
             case "resource_type":
-                iterable = ast.literal_eval(iterable)
                 queries = [
                     (
                         Q(subtype=value.split("__")[1])
@@ -108,3 +112,15 @@ class SubSite(models.Model):
         for item in queries:
             query |= item
         return query
+
+
+
+
+@receiver(signals.post_save, sender=SubSite)
+def post_save_subsite(instance, sender, created, **kwargs):
+    subsite_cache = caches["subsite_cache"]
+    subsite = subsite_cache.get(instance.slug)
+    if subsite:
+        subsite_cache.delete(instance.slug)
+    
+    subsite_cache.set(instance.slug, instance, 300)

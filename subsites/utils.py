@@ -6,6 +6,9 @@ from django.core.exceptions import ImproperlyConfigured
 from subsites import project_dir
 from django.template.backends.django import DjangoTemplates
 from subsites.models import SubSite
+from django.core.cache import caches
+
+subsite_cache = caches["subsite_cache"]
 
 
 def extract_subsite_slug_from_request(request, return_object=True):
@@ -17,16 +20,24 @@ def extract_subsite_slug_from_request(request, return_object=True):
         split_path = list(filter(None, url))
         if split_path:
             subsite_name = split_path[0]
-            try:
-                x = SubSite.objects.filter(slug=subsite_name)
-                if x.exists():
-                    if return_object:
-                        return x.first()
-                    else:
-                        return subsite_name
-                return None
-            except Exception:
-                return None
+            cached_value = subsite_cache.get(subsite_name)
+            if subsite_cache.get(subsite_name):
+                if return_object:
+                    return cached_value
+                else:
+                    return subsite_name
+            else:
+                try:
+                    x = SubSite.objects.filter(slug=subsite_name)
+                    if x.exists():
+                        subsite_cache.set(subsite_name, x.first(), 300)                        
+                        if return_object:
+                            return x.first()
+                        else:
+                            return subsite_name
+                    return None
+                except Exception:
+                    return None
     return None
 
 
