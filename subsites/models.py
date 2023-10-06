@@ -7,6 +7,7 @@ from django.db import models
 from django.db.models import Q
 from geonode.base.models import GroupProfile, HierarchicalKeyword, Region, TopicCategory
 from geonode.themes.models import GeoNodeThemeCustomization
+from django.contrib.postgres.fields import ArrayField
 
 logger = logging.getLogger(__name__)
 
@@ -37,7 +38,7 @@ class SubSite(models.Model):
     )
     groups = models.ManyToManyField(GroupProfile, null=True, blank=True, default=None)
 
-    types = models.CharField(null=True, blank=True, default=None, max_length=100)
+    types = ArrayField(base_field=models.CharField(max_length=30), null=True, blank=True, default=list, max_length=100)
 
     def __str__(self) -> str:
         return self.slug
