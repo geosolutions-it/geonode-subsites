@@ -114,14 +114,15 @@ templates
 │       ├── brand_navbar.html
 │       ├── search_bar.html
 │       └── topbar.html
-└── common
-│    └── geonode-mapstore-client
-│        └── snippets
-│            └── topbar.html
-└── subsite_1
-    └── geonode-mapstore-client
-        └── snippets
-            └── topbar.html
+├── subsites
+├───── common
+│       └── geonode-mapstore-client
+│       └── snippets
+│           └── topbar.html
+├───── subsite_1
+       └── geonode-mapstore-client
+       └── snippets
+          └── topbar.html
 
 ```
 
