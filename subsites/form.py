@@ -33,6 +33,7 @@ class SubsiteAdminModelForm(forms.ModelForm):
 
     types = forms.MultipleChoiceField(
         choices=get_choices,
+        required=False,
         widget=FilteredSelectMultiple(verbose_name="Resource types", is_stacked=False),
     )
 
