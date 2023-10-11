@@ -19,6 +19,8 @@
 from django.conf import settings
 from subsites.utils import extract_subsite_slug_from_request
 from geonode.themes.context_processors import custom_theme as geonode_custom_theme
+from geonode_mapstore_client.context_processors import resource_urls as geonode_resource_urls
+from django.shortcuts import reverse
 
 
 def custom_theme(request, *args, **kwargs):
@@ -38,3 +40,11 @@ def custom_theme(request, *args, **kwargs):
         custom_theme_payload['slug'] = subsite_obj.slug
 
     return custom_theme_payload
+
+
+def resource_urls(request):
+    geonode_urls = geonode_resource_urls(request=request)
+    geonode_urls["GEONODE_SETTINGS"]["CATALOG_HOME_REDIRECTS_TO"] = None
+    if request.resolver_match.url_name == 'subsite_catalogue_root':
+        geonode_urls["GEONODE_SETTINGS"]["CATALOG_HOME_REDIRECTS_TO"] = reverse("subsite_home", kwargs=request.resolver_match.kwargs)
+    return geonode_urls
