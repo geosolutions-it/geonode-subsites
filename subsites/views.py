@@ -9,6 +9,9 @@ from geonode.maps.api.views import MapViewSet
 from geonode.views import handler404
 from subsites import serializers
 from subsites.utils import extract_subsite_slug_from_request, subsite_render
+from django.shortcuts import redirect
+from geonode.base.models import ResourceBase
+from geonode.utils import resolve_object
 
 
 def subsite_home(request, subsite):
@@ -22,6 +25,13 @@ def subsite_home(request, subsite):
 def bridge_view(request, subsite, **kwargs):
     return kwargs["view"](request)
 
+
+def resolve_uuid(request, subsite, uuid):
+    slug = extract_subsite_slug_from_request(request, return_object=False)
+    if not slug:
+        return handler404(request, None)
+    resource = resolve_object(request, ResourceBase, {"uuid": uuid})
+    return redirect(f"/{slug}{resource.detail_url}")
 
 # API viewset override for subsite
 
