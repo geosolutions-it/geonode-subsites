@@ -1,5 +1,5 @@
 from django.conf.urls import include
-from django.urls import re_path
+from django.urls import path, re_path
 from geonode.api.views import admin_role, roles, user_info, users, verify_token
 from geonode.base.api.urls import views as resourcebase_view
 from geonode.resource.api.views import ExecutionRequestViewset
@@ -52,6 +52,7 @@ urlpatterns = [
         re_path(r"^(?P<subsite>[^/]*)/api/users", users, name="users"),
         re_path(r"^(?P<subsite>[^/]*)/api/v2/", include(router.urls)),
         re_path(r"^(?P<subsite>[^/]*)/api/v2/", include("geonode.api.urls")),
+        path(r"<str:subsite>/catalogue/uuid/<uuid:uuid>", views.resolve_uuid, name="subsite_resolve_uuid"),
         re_path(
             r"^(?P<subsite>[^/]*)/catalogue/",
             views.SubsiteCatalogueViewSet.as_view(template_name="geonode-mapstore-client/catalogue.html"),
