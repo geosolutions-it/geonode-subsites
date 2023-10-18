@@ -3,17 +3,6 @@
 {% load static %}
 {% load custom_tags %}
 
-{% block override_local_config %}
-<script>
-    window.__GEONODE_CONFIG__.overrideLocalConfig = function(localConfig, _) {
-        // Here the localConfig can be overridden and/or extended
-        localConfig.geoNodeApi.endpointV1 = "/{{slug}}/api/"
-        localConfig.geoNodeApi.endpointV2 = "/{{slug}}/api/v2"
-        return localConfig;
-    };
-</script>
-{% endblock %}
-
 {% block override_settings  %}
     {% load_subsite_info request as subsite_slug%}
 
