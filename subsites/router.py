@@ -33,8 +33,10 @@ class SubSiteDynamicRouter(routers.DynamicRouter):
                             else:
                                 group[endpoint_name] = url
                         result[group_name] = group
+
                 if 'facets' not in result:
                     result["facets"] = f"{settings.SITEURL}{kwargs.get('subsite')}/api/v2/facets"
+
                 return Response(result)
 
         return API.as_view()
