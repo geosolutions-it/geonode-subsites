@@ -43,8 +43,9 @@ def custom_theme(request, *args, **kwargs):
 
 
 def resource_urls(request):
-    geonode_urls = geonode_resource_urls(request=request)
-    geonode_urls["GEONODE_SETTINGS"]["CATALOG_HOME_REDIRECTS_TO"] = None
-    if request.resolver_match.url_name == 'subsite_catalogue_root':
-        geonode_urls["GEONODE_SETTINGS"]["CATALOG_HOME_REDIRECTS_TO"] = reverse("subsite_home", kwargs=request.resolver_match.kwargs)
+    geonode_urls = geonode_resource_urls(request=request)    
+    if getattr(settings, "ENABLE_CATALOG_HOME_REDIRECTS_TO", False):
+        geonode_urls["GEONODE_SETTINGS"]["CATALOG_HOME_REDIRECTS_TO"] = None
+        if request.resolver_match.url_name == 'subsite_catalogue_root':
+            geonode_urls["GEONODE_SETTINGS"]["CATALOG_HOME_REDIRECTS_TO"] = reverse("subsite_home", kwargs=request.resolver_match.kwargs)
     return geonode_urls
