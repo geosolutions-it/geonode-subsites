@@ -5,16 +5,21 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('geonode_themes', '0014_auto_20220214_0910'),
-        ('subsites', '0006_auto_20230911_1407'),
+        ("geonode_themes", "0014_auto_20220214_0910"),
+        ("subsites", "0006_auto_20230911_1407"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='subsite',
-            name='theme',
-            field=models.ForeignKey(blank=True, default=None, null=True, on_delete=django.db.models.deletion.SET_NULL, to='geonode_themes.geonodethemecustomization'),
+            model_name="subsite",
+            name="theme",
+            field=models.ForeignKey(
+                blank=True,
+                default=None,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                to="geonode_themes.geonodethemecustomization",
+            ),
         ),
     ]

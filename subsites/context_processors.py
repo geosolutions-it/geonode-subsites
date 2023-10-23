@@ -19,13 +19,15 @@
 from django.conf import settings
 from subsites.utils import extract_subsite_slug_from_request
 from geonode.themes.context_processors import custom_theme as geonode_custom_theme
-from geonode_mapstore_client.context_processors import resource_urls as geonode_resource_urls
+from geonode_mapstore_client.context_processors import (
+    resource_urls as geonode_resource_urls,
+)
 from django.shortcuts import reverse
 
 
 def custom_theme(request, *args, **kwargs):
     custom_theme_payload = geonode_custom_theme(request)
-    subsite_obj = extract_subsite_slug_from_request(request)    
+    subsite_obj = extract_subsite_slug_from_request(request)
     if getattr(settings, "ENABLE_SUBSITE_CUSTOM_THEMES", False):
         if subsite_obj:
             theme = subsite_obj.theme
@@ -37,15 +39,17 @@ def custom_theme(request, *args, **kwargs):
                     "slides": slides if slides.exists() else [],
                 }
     if subsite_obj:
-        custom_theme_payload['slug'] = subsite_obj.slug
+        custom_theme_payload["slug"] = subsite_obj.slug
 
     return custom_theme_payload
 
 
 def resource_urls(request):
-    geonode_urls = geonode_resource_urls(request=request)    
+    geonode_urls = geonode_resource_urls(request=request)
     if getattr(settings, "ENABLE_CATALOG_HOME_REDIRECTS_TO", False):
         geonode_urls["GEONODE_SETTINGS"]["CATALOG_HOME_REDIRECTS_TO"] = None
-        if request.resolver_match.url_name == 'subsite_catalogue_root':
-            geonode_urls["GEONODE_SETTINGS"]["CATALOG_HOME_REDIRECTS_TO"] = reverse("subsite_home", kwargs=request.resolver_match.kwargs)
+        if request.resolver_match.url_name == "subsite_catalogue_root":
+            geonode_urls["GEONODE_SETTINGS"]["CATALOG_HOME_REDIRECTS_TO"] = reverse(
+                "subsite_home", kwargs=request.resolver_match.kwargs
+            )
     return geonode_urls
