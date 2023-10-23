@@ -1,10 +1,14 @@
+import logging
+
 from django import forms
-from subsites.models import SubSite
+from django.conf import settings
 from django.contrib.admin.widgets import FilteredSelectMultiple
 from geonode.base.enumerations import LAYER_TYPES
-from django.conf import settings
 from geonode.security import permissions
 
+from subsites.models import SubSite
+
+logger = logging.getLogger("geonode")
 
 class SubsiteAdminModelForm(forms.ModelForm):
     def get_choices():
@@ -33,8 +37,21 @@ class SubsiteAdminModelForm(forms.ModelForm):
         widget=FilteredSelectMultiple(
             verbose_name="Allowed Permissions", is_stacked=False
         ),
+        help_text=(
+            "Max allowed permissions that the users who vistis the subsite will have."
+            "If no permissions are selected, view and download are automatically assigned."
+            "NOTE: no additional permissions are added to the user"
+        )
     )
 
     class Meta:
         model = SubSite
         fields = ("slug", "theme", "types", "region", "category", "keyword", "groups")
+
+    def save(self, commit=True):
+        super().save(commit=commit)
+        if not self.instance.allowed_permissions:
+            logger.warning("No permissions set, at least view and download are automatically assigned")
+            self.instance.allowed_permissions = ['view', 'download']
+            self.instance.save()
+        return self.instance
