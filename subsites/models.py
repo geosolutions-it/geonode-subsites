@@ -45,6 +45,15 @@ class SubSite(models.Model):
 
     types = ArrayField(base_field=models.CharField(max_length=30), null=True, blank=True, default=list, max_length=100)
 
+    allowed_permissions = ArrayField(
+        base_field=models.CharField(max_length=100),
+        null=True,
+        blank=True,
+        default=list, 
+        max_length=100,
+        help_text="Max allowed permission that the user can have in the subsite. No additional permissions are assinged to the user"
+    )
+
     def __str__(self) -> str:
         return self.slug
 
@@ -118,6 +127,7 @@ class SubSite(models.Model):
 
 @receiver(signals.post_save, sender=SubSite)
 def post_save_subsite(instance, sender, created, **kwargs):
+    # reset subsite object cache
     subsite_cache = caches["subsite_cache"]
     subsite = subsite_cache.get(instance.slug)
     if subsite:
