@@ -11,6 +11,7 @@ from django.contrib.admin.widgets import FilteredSelectMultiple
 from geonode.base.enumerations import LAYER_TYPES
 from geonode.documents.enumerations import DOCUMENT_TYPE_MAP
 from django.conf import settings
+from geonode.security import permissions
 
 
 class SubsiteAdminModelForm(forms.ModelForm):
@@ -30,11 +31,17 @@ class SubsiteAdminModelForm(forms.ModelForm):
         ]
 
         return sorted(resource_types + subtypes, key=lambda x: x[1].split(" - ")[0])
-
+    
     types = forms.MultipleChoiceField(
         choices=get_choices,
         required=False,
         widget=FilteredSelectMultiple(verbose_name="Resource types", is_stacked=False),
+    )
+
+    allowed_permissions = forms.MultipleChoiceField(
+        choices=permissions.COMPACT_RIGHT_MODES,
+        required=False,
+        widget=FilteredSelectMultiple(verbose_name="Allowed Permissions", is_stacked=False),
     )
 
     class Meta:
