@@ -14,7 +14,6 @@ INSTALLED_APPS += ("subsites",)
 ```
 
 `ENABLE_SUBSITE_CUSTOM_THEMES:` Enable the subsite login inside the app
-`SUBSITE_READ_ONLY:` make the subsites read-only for all the users
 
 
 ## Include URLS
