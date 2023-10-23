@@ -2,7 +2,7 @@ from collections import OrderedDict
 from dynamic_rest import routers
 from rest_framework import views
 from rest_framework.response import Response
-
+from django.conf import settings
 
 class SubSiteDynamicRouter(routers.DynamicRouter):
     def get_api_root_view(self, **kwargs):
@@ -33,6 +33,10 @@ class SubSiteDynamicRouter(routers.DynamicRouter):
                             else:
                                 group[endpoint_name] = url
                         result[group_name] = group
+
+                if 'facets' not in result:
+                    result["facets"] = f"{settings.SITEURL}{kwargs.get('subsite')}/api/v2/facets"
+
                 return Response(result)
 
         return API.as_view()
