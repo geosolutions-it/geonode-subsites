@@ -14,11 +14,6 @@ class SubsiteUserSerializer(UserSerializer):
     def to_representation(self, instance):
         data = super().to_representation(instance)
         return apply_subsite_changes(data, self.context["request"], instance)
-        ## Dehydrate users private fields
-        #data = super().to_representation(instance)
-        #if data.get("perms") and getattr(settings, "SUBSITE_READ_ONLY", False):
-        #    data["perms"] = ["view_resourcebase"]
-        #return data
 
 
 def apply_subsite_changes(data, request, instance):
