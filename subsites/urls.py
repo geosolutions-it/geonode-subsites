@@ -24,41 +24,55 @@ router.register(r"maps", views.SubsiteMapViewSet, "maps")
 router.register(r"executionrequest", ExecutionRequestViewset, "executionrequest")
 
 urlpatterns = [
-        re_path(
-            r"^(?P<subsite>[^/]*)/api/o/v4/tokeninfo",
-            views.bridge_view,
-            name="tokeninfo",
-            kwargs={"view": verify_token},
+    re_path(
+        r"^(?P<subsite>[^/]*)/api/o/v4/tokeninfo",
+        views.bridge_view,
+        name="tokeninfo",
+        kwargs={"view": verify_token},
+    ),
+    re_path(
+        r"^(?P<subsite>[^/]*)/api/o/v4/userinfo",
+        views.bridge_view,
+        name="userinfo",
+        kwargs={"view": user_info},
+    ),
+    # Api Views
+    re_path(
+        r"^(?P<subsite>[^/]*)/api/roles",
+        views.bridge_view,
+        name="roles",
+        kwargs={"view": roles},
+    ),
+    re_path(
+        r"^(?P<subsite>[^/]*)/api/adminRole",
+        views.bridge_view,
+        name="adminRole",
+        kwargs={"view": admin_role},
+    ),
+    path(
+        r"<str:subsite>/api/v2/facets/<facet>",
+        views.SubsiteGetFacetView.as_view(),
+        name="subsite_get_facet",
+    ),
+    re_path(
+        r"^(?P<subsite>[^/]*)/api/v2/facets",
+        views.SubsiteListFacetsView.as_view(),
+        name="subsite_list_facets",
+    ),
+    re_path(r"^(?P<subsite>[^/]*)/api/users", users, name="users"),
+    re_path(r"^(?P<subsite>[^/]*)/api/v2/", include(router.urls)),
+    re_path(r"^(?P<subsite>[^/]*)/api/v2/", include("geonode.api.urls")),
+    path(
+        r"<str:subsite>/catalogue/uuid/<uuid:uuid>",
+        views.resolve_uuid,
+        name="subsite_resolve_uuid",
+    ),
+    re_path(
+        r"^(?P<subsite>[^/]*)/catalogue/",
+        views.SubsiteCatalogueViewSet.as_view(
+            template_name="geonode-mapstore-client/catalogue.html"
         ),
-        re_path(
-            r"^(?P<subsite>[^/]*)/api/o/v4/userinfo",
-            views.bridge_view,
-            name="userinfo",
-            kwargs={"view": user_info},
-        ),
-        # Api Views
-        re_path(
-            r"^(?P<subsite>[^/]*)/api/roles",
-            views.bridge_view,
-            name="roles",
-            kwargs={"view": roles},
-        ),
-        re_path(
-            r"^(?P<subsite>[^/]*)/api/adminRole",
-            views.bridge_view,
-            name="adminRole",
-            kwargs={"view": admin_role},
-        ),
-        path(r"<str:subsite>/api/v2/facets/<facet>", views.SubsiteGetFacetView.as_view(), name="subsite_get_facet"),
-        re_path(r"^(?P<subsite>[^/]*)/api/v2/facets", views.SubsiteListFacetsView.as_view(), name="subsite_list_facets"),
-        re_path(r"^(?P<subsite>[^/]*)/api/users", users, name="users"),
-        re_path(r"^(?P<subsite>[^/]*)/api/v2/", include(router.urls)),
-        re_path(r"^(?P<subsite>[^/]*)/api/v2/", include("geonode.api.urls")),
-        path(r"<str:subsite>/catalogue/uuid/<uuid:uuid>", views.resolve_uuid, name="subsite_resolve_uuid"),
-        re_path(
-            r"^(?P<subsite>[^/]*)/catalogue/",
-            views.SubsiteCatalogueViewSet.as_view(template_name="geonode-mapstore-client/catalogue.html"),
-            name="subsite_catalogue_root"
-        ),
-        re_path(r"^(?P<subsite>[^/]*)/$", views.subsite_home, name="subsite_home"),
-    ]
+        name="subsite_catalogue_root",
+    ),
+    re_path(r"^(?P<subsite>[^/]*)/$", views.subsite_home, name="subsite_home"),
+]

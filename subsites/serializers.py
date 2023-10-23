@@ -18,12 +18,12 @@ class SubsiteUserSerializer(UserSerializer):
 
 def apply_subsite_changes(data, request, instance):
     subsite = extract_subsite_slug_from_request(request)
-    if 'detail_url' in data:
+    if "detail_url" in data:
         data["detail_url"] = data["detail_url"].replace(
             "catalogue/", f"{subsite}/catalogue/"
         )
     # checking users perms based on the subsite_one
-    if 'perms' in data:
+    if "perms" in data:
         allowed_perms = []
         for user_perm in get_compact_perms_list(instance.get_user_perms(request.user)):
             allowed_perms += [

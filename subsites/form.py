@@ -1,15 +1,7 @@
-import ast
-from collections.abc import Mapping
-from typing import Any
 from django import forms
-from django.core.files.base import File
-from django.db.models.base import Model
-from django.forms.utils import ErrorList
-from geonode.base.models import ResourceBase
 from subsites.models import SubSite
 from django.contrib.admin.widgets import FilteredSelectMultiple
 from geonode.base.enumerations import LAYER_TYPES
-from geonode.documents.enumerations import DOCUMENT_TYPE_MAP
 from django.conf import settings
 from geonode.security import permissions
 
@@ -20,18 +12,15 @@ class SubsiteAdminModelForm(forms.ModelForm):
             ("dataset", "Dataset"),
             ("document", "Document"),
             ("map", "Maps"),
-            ("geoapp", "GeoApp")
+            ("geoapp", "GeoApp"),
         ]
 
         subtypes = [
             (f"dataset__{x}", f"Dataset - {x.title()}") for x in LAYER_TYPES
-        ] + [
-            (f"{x}", f"GeoApp - {x.title()}")
-            for x in settings.CLIENT_APP_LIST
-        ]
+        ] + [(f"{x}", f"GeoApp - {x.title()}") for x in settings.CLIENT_APP_LIST]
 
         return sorted(resource_types + subtypes, key=lambda x: x[1].split(" - ")[0])
-    
+
     types = forms.MultipleChoiceField(
         choices=get_choices,
         required=False,
@@ -41,7 +30,9 @@ class SubsiteAdminModelForm(forms.ModelForm):
     allowed_permissions = forms.MultipleChoiceField(
         choices=permissions.COMPACT_RIGHT_MODES,
         required=False,
-        widget=FilteredSelectMultiple(verbose_name="Allowed Permissions", is_stacked=False),
+        widget=FilteredSelectMultiple(
+            verbose_name="Allowed Permissions", is_stacked=False
+        ),
     )
 
     class Meta:

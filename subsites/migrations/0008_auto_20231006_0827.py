@@ -5,19 +5,25 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('subsites', '0007_alter_subsite_theme'),
+        ("subsites", "0007_alter_subsite_theme"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='subsite',
-            name='resource_type',
+            model_name="subsite",
+            name="resource_type",
         ),
         migrations.AddField(
-            model_name='subsite',
-            name='types',
-            field=django.contrib.postgres.fields.ArrayField(base_field=models.CharField(max_length=30), blank=True, default=list, max_length=100, null=True, size=None),
+            model_name="subsite",
+            name="types",
+            field=django.contrib.postgres.fields.ArrayField(
+                base_field=models.CharField(max_length=30),
+                blank=True,
+                default=list,
+                max_length=100,
+                null=True,
+                size=None,
+            ),
         ),
     ]

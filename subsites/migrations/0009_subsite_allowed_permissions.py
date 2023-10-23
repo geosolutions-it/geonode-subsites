@@ -5,15 +5,22 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('subsites', '0008_auto_20231006_0827'),
+        ("subsites", "0008_auto_20231006_0827"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='subsite',
-            name='allowed_permissions',
-            field=django.contrib.postgres.fields.ArrayField(base_field=models.CharField(max_length=100), blank=True, default=list, help_text='Max allowed permission that the user can have in the subsite. No additional permissions are assinged to the user', max_length=100, null=True, size=None),
+            model_name="subsite",
+            name="allowed_permissions",
+            field=django.contrib.postgres.fields.ArrayField(
+                base_field=models.CharField(max_length=100),
+                blank=True,
+                default=list,
+                help_text="Max allowed permission that the user can have in the subsite. No additional permissions are assinged to the user",
+                max_length=100,
+                null=True,
+                size=None,
+            ),
         ),
     ]

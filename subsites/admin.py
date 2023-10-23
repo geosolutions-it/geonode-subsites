@@ -3,6 +3,7 @@ from django.contrib import admin
 from subsites.form import SubsiteAdminModelForm
 from subsites.models import SubSite
 
+
 @admin.register(SubSite)
 class SubSiteAdmin(admin.ModelAdmin):
     form = SubsiteAdminModelForm
@@ -13,4 +14,3 @@ class SubSiteAdmin(admin.ModelAdmin):
         "keyword",
         "groups",
     )
-

@@ -4,15 +4,19 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('subsites', '0004_auto_20230908_0937'),
+        ("subsites", "0004_auto_20230908_0937"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='subsite',
-            name='slug',
-            field=models.SlugField(help_text='Sub site name, formatted as slug. This slug is going to be used as path for access the subsite', max_length=250, unique=True, verbose_name='Site name'),
+            model_name="subsite",
+            name="slug",
+            field=models.SlugField(
+                help_text="Sub site name, formatted as slug. This slug is going to be used as path for access the subsite",
+                max_length=250,
+                unique=True,
+                verbose_name="Site name",
+            ),
         ),
     ]
