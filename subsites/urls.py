@@ -49,6 +49,8 @@ urlpatterns = [
             name="adminRole",
             kwargs={"view": admin_role},
         ),
+        path(r"<str:subsite>/api/v2/facets/<facet>", views.SubsiteGetFacetView.as_view(), name="subsite_get_facet"),
+        re_path(r"^(?P<subsite>[^/]*)/api/v2/facets", views.SubsiteListFacetsView.as_view(), name="subsite_list_facets"),
         re_path(r"^(?P<subsite>[^/]*)/api/users", users, name="users"),
         re_path(r"^(?P<subsite>[^/]*)/api/v2/", include(router.urls)),
         re_path(r"^(?P<subsite>[^/]*)/api/v2/", include("geonode.api.urls")),

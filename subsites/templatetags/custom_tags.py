@@ -45,6 +45,7 @@ def subsite_get_base_right_topbar_menu(context, request):
         return []
     return get_base_right_topbar_menu(context)
 
+
 # settings value
 @register.simple_tag
 def site_url():
@@ -60,4 +61,3 @@ def _update_url_with_subsite(result, subsite):
                 if item.get("type", "") == "link":
                     item["href"] = f"/{subsite}{item['href']}"
     return result
-

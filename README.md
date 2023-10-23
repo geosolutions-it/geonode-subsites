@@ -9,12 +9,11 @@ Add in the geonode settings the following code
 
 ```
 ENABLE_SUBSITE_CUSTOM_THEMES = True
-SUBSITE_READ_ONLY = True / False
 INSTALLED_APPS += ("subsites",)
+ENABLE_CATALOG_HOME_REDIRECTS_TO = True/False
 ```
 
 `ENABLE_SUBSITE_CUSTOM_THEMES:` Enable the subsite login inside the app
-
 
 ## Include URLS
 
