@@ -34,6 +34,7 @@ def resolve_uuid(request, subsite, uuid):
     resource = resolve_object(request, ResourceBase, {"uuid": uuid})
     return redirect(f"/{slug}{resource.detail_url}")
 
+
 # API viewset override for subsite
 
 
@@ -102,13 +103,15 @@ class SubsiteCatalogueViewSet(TemplateView):
         slug = extract_subsite_slug_from_request(request, return_object=False)
         if not slug:
             raise handler404(request, None)
-        return subsite_render(request, context["view"].template_name, context=context, slug=slug)
+        return subsite_render(
+            request, context["view"].template_name, context=context, slug=slug
+        )
 
 
 # Facets
 
+
 class SubsiteListFacetsView(ListFacetsView):
-        
     @classmethod
     def _prefilter_topics(cls, request):
         qr = super()._prefilter_topics(request)
@@ -118,7 +121,7 @@ class SubsiteListFacetsView(ListFacetsView):
 class SubsiteGetFacetView(GetFacetView):
     def get(self, request, subsite, facet):
         return super().get(request, facet)
-        
+
     @classmethod
     def _prefilter_topics(cls, request):
         qr = super()._prefilter_topics(request)
