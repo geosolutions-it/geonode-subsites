@@ -4,6 +4,13 @@ import django.contrib.postgres.fields
 from django.db import migrations, models
 
 
+def set_min_perms(apps, schema_editor):
+    # We get the model from the versioned app registry;
+    # if we directly import it, it'll be the wrong version
+    subsites = apps.get_model("subsites", "SubSite")
+    subsites.objects.update(allowed_permissions=["view", "download"])
+
+
 class Migration(migrations.Migration):
     dependencies = [
         ("subsites", "0008_auto_20231006_0827"),
@@ -23,4 +30,5 @@ class Migration(migrations.Migration):
                 size=None,
             ),
         ),
+        migrations.RunPython(set_min_perms, migrations.RunPython.noop)
     ]
