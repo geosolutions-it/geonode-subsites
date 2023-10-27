@@ -8,6 +8,7 @@
 
     {% if subsite_slug %}
         siteUrl = '{{site_url}}/{{subsite_slug}}/'
+        catalogPagePath = "{% url 'subsite_catalogue_root' subsite=subsite_slug %}"
         createLayer = false
     {% endif %}
 {% endblock %}
