@@ -1,4 +1,3 @@
-import os
 from django import template
 
 from subsites.utils import extract_subsite_slug_from_request
@@ -8,7 +7,6 @@ from geonode_mapstore_client.templatetags.get_menu_json import (
     get_base_right_topbar_menu,
 )
 from django.conf import settings
-from subsites import project_dir
 
 register = template.Library()
 
