@@ -34,6 +34,12 @@ class SubSite(models.Model):
         blank=True,
     )
 
+    logo = models.ImageField(upload_to="img/%Y/%m", null=True, blank=True)
+
+    list_in_home = models.BooleanField(default=False, blank=True, verbose_name="Select if the subsite should be displayed in the homepage. NOTE: settings ENABLE_HOME_OVERRIDE_WITH_SUBSITE_LIST must be enabled")
+
+    description = models.TextField(default=False, blank=True, verbose_name="Subsite description")
+
     region = models.ManyToManyField(Region, null=True, blank=True, default=None)
     category = models.ManyToManyField(
         TopicCategory, null=True, blank=True, default=None

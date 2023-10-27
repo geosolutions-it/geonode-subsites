@@ -1,4 +1,5 @@
 from django import template
+from subsites.models import SubSite
 
 from subsites.utils import extract_subsite_slug_from_request
 from geonode_mapstore_client.templatetags.get_menu_json import (
@@ -17,6 +18,15 @@ def load_subsite_info(request):
     if not subsite:
         return None
     return subsite.slug
+
+@register.simple_tag
+def load_settings(lookup_value):
+    return getattr(settings, lookup_value, None)
+
+
+@register.simple_tag
+def load_subsite_queryset():
+    return SubSite.objects.filter(list_in_home=True)
 
 
 @register.simple_tag(takes_context=True)

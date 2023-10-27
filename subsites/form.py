@@ -46,7 +46,7 @@ class SubsiteAdminModelForm(forms.ModelForm):
 
     class Meta:
         model = SubSite
-        fields = ("slug", "theme", "types", "region", "category", "keyword", "groups")
+        fields = ("slug", "theme", "logo", "list_in_home", "description", "types", "region", "category", "keyword", "groups")
 
     def save(self, commit=True):
         super().save(commit=commit)
