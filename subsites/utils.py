@@ -14,7 +14,7 @@ def extract_subsite_slug_from_request(request, return_object=True):
     """
     Return the Subsite object or None if not exists or not Enabled
     """
-    if getattr(settings, "ENABLE_SUBSITE_CUSTOM_THEMES", False) and request and 'subsites.' in request.resolver_match._func_path.lower():
+    if request and 'subsites.' in request.resolver_match._func_path.lower():
         url = request.path.split("/")
         split_path = list(filter(None, url))
         if split_path:
