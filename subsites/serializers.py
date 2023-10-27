@@ -7,6 +7,7 @@ from geonode.layers.api.serializers import DatasetSerializer, DatasetListSeriali
 from geonode.maps.api.serializers import MapSerializer
 from django.conf import settings
 from geonode.security.permissions import get_compact_perms_list, _to_extended_perms
+from geonode.base.models import ResourceBase
 import itertools
 
 
@@ -23,7 +24,12 @@ def apply_subsite_changes(data, request, instance):
             "catalogue/", f"{subsite}/catalogue/"
         )
     # checking users perms based on the subsite_one
-    if "perms" in data:
+    if "perms" in data and isinstance(instance, ResourceBase):
+
+        if getattr(settings, "SUBSITE_READ_ONLY", False):
+            data["perms"] = ["view_resourcebase"]
+            return data
+
         allowed_perms = []
         for user_perm in get_compact_perms_list(instance.get_user_perms(request.user)):
             allowed_perms += [
@@ -40,8 +46,8 @@ def apply_subsite_changes(data, request, instance):
                 )
             )
         )
-    if "download" not in allowed_perms:
-        data["download_url"] = None
+        if "download" not in allowed_perms:
+            data["download_url"] = None
     return data
 
 

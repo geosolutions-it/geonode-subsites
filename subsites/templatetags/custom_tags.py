@@ -1,4 +1,3 @@
-import os
 from django import template
 
 from subsites.utils import extract_subsite_slug_from_request
@@ -8,7 +7,6 @@ from geonode_mapstore_client.templatetags.get_menu_json import (
     get_base_right_topbar_menu,
 )
 from django.conf import settings
-from subsites import project_dir
 
 register = template.Library()
 
@@ -61,3 +59,19 @@ def _update_url_with_subsite(result, subsite):
                 if item.get("type", "") == "link":
                     item["href"] = f"/{subsite}{item['href']}"
     return result
+
+@register.simple_tag(takes_context=True)
+def subsite_catalogue_home(context):
+    _path = ""
+    if context and 'request' in context:
+        current_path = context['request'].path
+        subsite = extract_subsite_slug_from_request(context['request'])
+        if current_path == '/':
+            _path = "/"
+        elif current_path.find('/catalogue') == 0:
+            _path = "#"
+        else:
+            _path = "/catalogue/#"
+        if subsite:
+            return f"/{subsite}" + _path
+    return _path

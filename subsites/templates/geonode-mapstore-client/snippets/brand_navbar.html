@@ -3,6 +3,8 @@
 
 {% load custom_tags %}
 
+{% block logo_href %}{% subsite_catalogue_home %}{% endblock %}
+
 {% block right_menu %}
 {% subsite_get_user_menu request as USER_MENU %}
 
