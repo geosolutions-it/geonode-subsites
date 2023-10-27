@@ -26,7 +26,7 @@ def apply_subsite_changes(data, request, instance):
     # checking users perms based on the subsite_one
     if "perms" in data and isinstance(instance, ResourceBase):
 
-        if hasattr(settings, "SUBSITE_READ_ONLY", False):
+        if getattr(settings, "SUBSITE_READ_ONLY", False):
             data["perms"] = ["view_resourcebase"]
             return data
 

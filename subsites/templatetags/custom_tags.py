@@ -59,3 +59,19 @@ def _update_url_with_subsite(result, subsite):
                 if item.get("type", "") == "link":
                     item["href"] = f"/{subsite}{item['href']}"
     return result
+
+@register.simple_tag(takes_context=True)
+def subsite_catalogue_home(context):
+    _path = ""
+    if context and 'request' in context:
+        current_path = context['request'].path
+        subsite = extract_subsite_slug_from_request(context['request'])
+        if current_path == '/':
+            _path = "/"
+        elif current_path.find('/catalogue') == 0:
+            _path = "#"
+        else:
+            _path = "/catalogue/#"
+        if subsite:
+            return f"/{subsite}" + _path
+    return _path
