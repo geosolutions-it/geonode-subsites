@@ -11,12 +11,9 @@ Add in the geonode settings the following code
 ENABLE_SUBSITE_CUSTOM_THEMES = True
 INSTALLED_APPS += ("subsites",)
 ENABLE_CATALOG_HOME_REDIRECTS_TO = True/False
-ENABLE_HOME_OVERRIDE_WITH_SUBSITE_LIST = True / False
 ```
 
 `ENABLE_SUBSITE_CUSTOM_THEMES:` Enable the subsite login inside the app
-
-`ENABLE_HOME_OVERRIDE_WITH_SUBSITE_LIST:` Override the default GeoNode home page. Show the list of subsites instead of resource lists
 
 ## Include URLS
 
