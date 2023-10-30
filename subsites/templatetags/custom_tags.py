@@ -8,6 +8,7 @@ from geonode_mapstore_client.templatetags.get_menu_json import (
     get_base_right_topbar_menu,
 )
 from django.conf import settings
+from django.core.cache import caches
 
 register = template.Library()
 
@@ -26,7 +27,13 @@ def load_settings(lookup_value):
 
 @register.simple_tag
 def load_subsite_queryset():
-    return SubSite.objects.filter(list_in_home=True)
+    subsite_cache = caches["subsite_cache"]
+    subsite_queryset = subsite_cache.get("subsite_queryset")
+    if subsite_queryset:
+        return subsite_queryset
+    qr = SubSite.objects.all()
+    subsite_cache.set("subsite_queryset", SubSite.objects.all(), 200)
+    return qr
 
 
 @register.simple_tag(takes_context=True)

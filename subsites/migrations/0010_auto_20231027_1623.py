@@ -13,12 +13,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='subsite',
             name='description',
-            field=models.TextField(blank=True, default=False, verbose_name='Subsite description'),
-        ),
-        migrations.AddField(
-            model_name='subsite',
-            name='list_in_home',
-            field=models.BooleanField(blank=True, default=False, verbose_name='Select if the subsite should be displayed in the homepage. NOTE: settings ENABLE_HOME_OVERRIDE_WITH_SUBSITE_LIST must be enabled'),
+            field=models.TextField(blank=True, verbose_name='Subsite description'),
         ),
         migrations.AddField(
             model_name='subsite',

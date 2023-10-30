@@ -36,9 +36,7 @@ class SubSite(models.Model):
 
     logo = models.ImageField(upload_to="img/%Y/%m", null=True, blank=True)
 
-    list_in_home = models.BooleanField(default=False, blank=True, verbose_name="Select if the subsite should be displayed in the homepage. NOTE: settings ENABLE_HOME_OVERRIDE_WITH_SUBSITE_LIST must be enabled")
-
-    description = models.TextField(default=False, blank=True, verbose_name="Subsite description")
+    description = models.TextField(blank=True, verbose_name="Subsite description")
 
     region = models.ManyToManyField(Region, null=True, blank=True, default=None)
     category = models.ManyToManyField(
@@ -144,3 +142,10 @@ def post_save_subsite(instance, sender, created, **kwargs):
         subsite_cache.delete(instance.slug)
 
     subsite_cache.set(instance.slug, instance, 300)
+    
+    # delete subsite return queryset and reset it
+    subsite_queryset = subsite_cache.get("subsite_queryset")
+    if subsite_queryset:
+        subsite_cache.delete("subsite_queryset")
+    subsite_cache.set("subsite_queryset", SubSite.objects.all(), 200)
+    
