@@ -28,6 +28,8 @@ def apply_subsite_changes(data, request, instance):
 
         if getattr(settings, "SUBSITE_READ_ONLY", False):
             data["perms"] = ["view_resourcebase"]
+            data["download_url"] = None
+            data["download_urls"] = None
             return data
 
         allowed_perms = []
@@ -48,6 +50,7 @@ def apply_subsite_changes(data, request, instance):
         )
         if "download" not in allowed_perms:
             data["download_url"] = None
+            data["download_urls"] = None
     return data
 
 
