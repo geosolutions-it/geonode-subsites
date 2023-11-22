@@ -39,12 +39,11 @@ def apply_subsite_changes(data, request, instance):
         owner = OWNER_RIGHTS in subsite.allowed_permissions
         subsite_allowed_perms = set(
             itertools.chain.from_iterable(
-                [
-                    _to_extended_perms(
+                filter(None, [_to_extended_perms(
                         perm, instance.resource_type, instance.subtype, owner
                     )
                     for perm in subsite.allowed_permissions
-                ]
+                ])
             )
         )
         user_allowed_perms = [
