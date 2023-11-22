@@ -32,31 +32,18 @@ def apply_subsite_changes(data, request, instance):
             data["download_urls"] = None
             return data
 
-        allowed_perms = []
-        for user_perm in get_compact_perms_list(
-            data["perms"], 
-            instance.resource_type, 
-            instance.subtype,
-            instance.owner == request.user
-        ):
-            allowed_perms += [
-                user_perm["name"]
-                for _perm in subsite.allowed_permissions
-                if _perm in user_perm.values()
-            ]
-
-        data["perms"] = list(
-            set(
-                itertools.chain.from_iterable(
-                    filter(None, (
-                            _to_extended_perms(_perm, instance.resource_type)
-                            for _perm in allowed_perms
-                        )
-                    )
-                )
+        subsite_allowed_perms = set(
+            itertools.chain.from_iterable(
+                [
+                    _to_extended_perms(perm, instance.resource_type, instance.subtype)
+                    for perm in subsite.allowed_permissions
+                ]
             )
         )
-        if "download" not in allowed_perms:
+        user_allowed_perms = [perm for perm in data["perms"] if perm in subsite_allowed_perms]
+        data["perms"] = user_allowed_perms
+
+        if "download" not in user_allowed_perms:
             data["download_url"] = None
             data["download_urls"] = None
     return data
