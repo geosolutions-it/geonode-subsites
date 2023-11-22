@@ -9,6 +9,7 @@ from django.conf import settings
 from geonode.security.permissions import get_compact_perms_list, _to_extended_perms
 from geonode.base.models import ResourceBase
 import itertools
+from guardian.backends import check_user_support
 
 
 class SubsiteUserSerializer(UserSerializer):
@@ -33,7 +34,13 @@ def apply_subsite_changes(data, request, instance):
             return data
 
         allowed_perms = []
-        for user_perm in get_compact_perms_list(instance.get_user_perms(request.user)):
+        _, user = check_user_support(request.user)
+        for user_perm in get_compact_perms_list(
+            instance.get_user_perms(user), 
+            instance.resource_type, 
+            instance.subtype,
+            instance.owner == user
+        ):
             allowed_perms += [
                 user_perm["name"]
                 for _perm in subsite.allowed_permissions
@@ -43,8 +50,11 @@ def apply_subsite_changes(data, request, instance):
         data["perms"] = list(
             set(
                 itertools.chain.from_iterable(
-                    _to_extended_perms(_perm, instance.resource_type)
-                    for _perm in allowed_perms
+                    filter(None, (
+                            _to_extended_perms(_perm, instance.resource_type)
+                            for _perm in allowed_perms
+                        )
+                    )
                 )
             )
         )
