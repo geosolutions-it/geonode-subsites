@@ -6,7 +6,11 @@ from geonode.geoapps.api.serializers import GeoAppSerializer
 from geonode.layers.api.serializers import DatasetSerializer, DatasetListSerializer
 from geonode.maps.api.serializers import MapSerializer
 from django.conf import settings
-from geonode.security.permissions import get_compact_perms_list, _to_extended_perms
+from geonode.security.permissions import (
+    get_compact_perms_list,
+    _to_extended_perms,
+    OWNER_RIGHTS,
+)
 from geonode.base.models import ResourceBase
 import itertools
 from guardian.backends import check_user_support
@@ -32,15 +36,20 @@ def apply_subsite_changes(data, request, instance):
             data["download_urls"] = None
             return data
 
+        owner = OWNER_RIGHTS in subsite.allowed_permissions
         subsite_allowed_perms = set(
             itertools.chain.from_iterable(
                 [
-                    _to_extended_perms(perm, instance.resource_type, instance.subtype)
+                    _to_extended_perms(
+                        perm, instance.resource_type, instance.subtype, owner
+                    )
                     for perm in subsite.allowed_permissions
                 ]
             )
         )
-        user_allowed_perms = [perm for perm in data["perms"] if perm in subsite_allowed_perms]
+        user_allowed_perms = [
+            perm for perm in data["perms"] if perm in subsite_allowed_perms
+        ]
         data["perms"] = user_allowed_perms
 
         if "download" not in user_allowed_perms:
