@@ -51,7 +51,7 @@ def apply_subsite_changes(data, request, instance):
         ]
         data["perms"] = user_allowed_perms
 
-        if "download" not in user_allowed_perms:
+        if "download_resourcebase" not in user_allowed_perms:
             data["download_url"] = None
             data["download_urls"] = None
     return data
