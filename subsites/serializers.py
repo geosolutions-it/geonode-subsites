@@ -56,8 +56,6 @@ def apply_subsite_changes(data, request, instance):
                 )
             )
         )
-        
-        
         if "download" not in allowed_perms:
             data["download_url"] = None
             data["download_urls"] = None
