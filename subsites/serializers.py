@@ -26,7 +26,6 @@ def apply_subsite_changes(data, request, instance):
         )
     # checking users perms based on the subsite_one
     if "perms" in data and isinstance(instance, ResourceBase):
-
         if getattr(settings, "SUBSITE_READ_ONLY", False):
             data["perms"] = ["view_resourcebase"]
             data["download_url"] = None
@@ -34,12 +33,11 @@ def apply_subsite_changes(data, request, instance):
             return data
 
         allowed_perms = []
-        _, user = check_user_support(request.user)
         for user_perm in get_compact_perms_list(
-            instance.get_user_perms(user), 
+            data["perms"], 
             instance.resource_type, 
             instance.subtype,
-            instance.owner == user
+            instance.owner == request.user
         ):
             allowed_perms += [
                 user_perm["name"]
@@ -58,6 +56,8 @@ def apply_subsite_changes(data, request, instance):
                 )
             )
         )
+        
+        
         if "download" not in allowed_perms:
             data["download_url"] = None
             data["download_urls"] = None
