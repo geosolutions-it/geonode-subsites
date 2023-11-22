@@ -37,15 +37,21 @@ def apply_subsite_changes(data, request, instance):
             return data
 
         owner = OWNER_RIGHTS in subsite.allowed_permissions
+        # We expand the compact permission configured for the subsite
         subsite_allowed_perms = set(
             itertools.chain.from_iterable(
-                filter(None, [_to_extended_perms(
-                        perm, instance.resource_type, instance.subtype, owner
-                    )
-                    for perm in subsite.allowed_permissions
-                ])
+                filter(
+                    None,
+                    [
+                        _to_extended_perms(
+                            perm, instance.resource_type, instance.subtype, owner
+                        )
+                        for perm in subsite.allowed_permissions
+                    ],
+                )
             )
         )
+        # We filter out the user permissions not included in subsite permissions
         user_allowed_perms = [
             perm for perm in data["perms"] if perm in subsite_allowed_perms
         ]
