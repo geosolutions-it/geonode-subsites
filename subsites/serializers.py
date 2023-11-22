@@ -38,6 +38,7 @@ def apply_subsite_changes(data, request, instance):
 
         owner = OWNER_RIGHTS in subsite.allowed_permissions
         # We expand the compact permission configured for the subsite
+        # TODO: These could be precalculated and cached for performance
         subsite_allowed_perms = set(
             itertools.chain.from_iterable(
                 filter(
