@@ -6,7 +6,11 @@ from geonode.geoapps.api.serializers import GeoAppSerializer
 from geonode.layers.api.serializers import DatasetSerializer, DatasetListSerializer
 from geonode.maps.api.serializers import MapSerializer
 from django.conf import settings
-from geonode.security.permissions import get_compact_perms_list, _to_extended_perms
+from geonode.security.permissions import (
+    get_compact_perms_list,
+    _to_extended_perms,
+    OWNER_RIGHTS,
+)
 from geonode.base.models import ResourceBase
 import itertools
 from guardian.backends import check_user_support
@@ -26,39 +30,35 @@ def apply_subsite_changes(data, request, instance):
         )
     # checking users perms based on the subsite_one
     if "perms" in data and isinstance(instance, ResourceBase):
-
         if getattr(settings, "SUBSITE_READ_ONLY", False):
             data["perms"] = ["view_resourcebase"]
             data["download_url"] = None
             data["download_urls"] = None
             return data
 
-        allowed_perms = []
-        _, user = check_user_support(request.user)
-        for user_perm in get_compact_perms_list(
-            instance.get_user_perms(user), 
-            instance.resource_type, 
-            instance.subtype,
-            instance.owner == user
-        ):
-            allowed_perms += [
-                user_perm["name"]
-                for _perm in subsite.allowed_permissions
-                if _perm in user_perm.values()
-            ]
-
-        data["perms"] = list(
-            set(
-                itertools.chain.from_iterable(
-                    filter(None, (
-                            _to_extended_perms(_perm, instance.resource_type)
-                            for _perm in allowed_perms
+        owner = OWNER_RIGHTS in subsite.allowed_permissions
+        # We expand the compact permission configured for the subsite
+        # TODO: These could be precalculated and cached for performance
+        subsite_allowed_perms = set(
+            itertools.chain.from_iterable(
+                filter(
+                    None,
+                    [
+                        _to_extended_perms(
+                            perm, instance.resource_type, instance.subtype, owner
                         )
-                    )
+                        for perm in subsite.allowed_permissions
+                    ],
                 )
             )
         )
-        if "download" not in allowed_perms:
+        # We filter out the user permissions not included in subsite permissions
+        user_allowed_perms = [
+            perm for perm in data["perms"] if perm in subsite_allowed_perms
+        ]
+        data["perms"] = user_allowed_perms
+
+        if "download_resourcebase" not in user_allowed_perms:
             data["download_url"] = None
             data["download_urls"] = None
     return data
