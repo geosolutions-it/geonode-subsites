@@ -413,3 +413,8 @@ class SubsiteTestCase(APITestCase):
         self.assertListEqual(['add_resource'], payload.get("perms"))
         self.subsite_datasets.can_add_resource = False
         self.subsite_datasets.save()
+
+    def test_api_router(self):
+        url = f"/{self.subsite_japan.slug}/api/v2/"
+        response = self.client.get(url)
+        self.assertEqual(200, response.status_code)
