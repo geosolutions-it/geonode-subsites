@@ -26,6 +26,7 @@ class SubSite(models.Model):
         unique=True,
         help_text="Sub site name, formatted as slug. This slug is going to be used as path for access the subsite",
     )
+
     theme = models.ForeignKey(
         GeoNodeThemeCustomization,
         on_delete=models.SET_NULL,
@@ -34,11 +35,18 @@ class SubSite(models.Model):
         blank=True,
     )
 
+    can_add_resource = models.BooleanField(
+        verbose_name="Contributors can add resources",
+        default=False,
+        help_text="If TRUE, the users belonging to the contributors group will be able to add new resources in the subsite"
+    )
+    
     logo = models.ImageField(upload_to="img/%Y/%m", null=True, blank=True)
 
     description = models.TextField(blank=True, verbose_name="Subsite description")
 
     region = models.ManyToManyField(Region, null=True, blank=True, default=None)
+
     category = models.ManyToManyField(
         TopicCategory, null=True, blank=True, default=None
     )

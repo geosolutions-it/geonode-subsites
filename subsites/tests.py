@@ -1,4 +1,5 @@
-from mock import MagicMock, patch
+from django.test import override_settings
+from mock import MagicMock
 from subsites.models import SubSite
 from django.shortcuts import reverse
 from geonode.base.models import GroupProfile, HierarchicalKeyword, Region, TopicCategory
@@ -6,6 +7,7 @@ from geonode.base.populate_test_data import create_single_dataset
 from geonode.themes.models import GeoNodeThemeCustomization
 from rest_framework.test import APITestCase
 from django.contrib.auth import get_user_model
+
 
 from subsites.views import bridge_view
 
@@ -107,11 +109,11 @@ class SubsiteTestCase(APITestCase):
         cls.subsite_groups.region.add(*[cls.region_italy, cls.region_japan])
 
         cls.subsite_datasets, _ = SubSite.objects.get_or_create(
-            slug="subsite_dataset", theme=cls.theme1, resource_type="dataset"
+            slug="subsite_dataset", theme=cls.theme1, types=["dataset"]
         )
 
         cls.subsite_geoapp, _ = SubSite.objects.get_or_create(
-            slug="subsite_geoapp", theme=cls.theme1, resource_type="geoapp"
+            slug="subsite_geoapp", theme=cls.theme1, types=["geoapp"]
         )
 
         cls.subsite_no_condition, _ = SubSite.objects.get_or_create(
@@ -380,3 +382,79 @@ class SubsiteTestCase(APITestCase):
             reverse("subsite_home", args=[self.subsite_datasets.slug])
         )
         self.assertEqual(200, response.status_code)
+
+    def test_subsite_can_add_resource_is_false(self):
+        admin = get_user_model().objects.get(username='admin')
+        self.client.login(username="admin", password="admin")
+        response = self.client.get(
+            reverse(
+                "subsite_users-detail",
+                args=[self.subsite_datasets.slug, admin.id]
+            )
+        )
+        self.assertEqual(200, response.status_code)
+        payload = response.json()['user']
+        self.assertEqual('admin', payload.get("username"))
+        self.assertListEqual([], payload.get("perms"))
+
+    def test_subsite_can_add_resource_is_true(self):
+        self.subsite_datasets.can_add_resource = True
+        self.subsite_datasets.save()
+        admin = get_user_model().objects.get(username='admin')
+        self.client.login(username="admin", password="admin")
+        response = self.client.get(
+            reverse(
+                "subsite_users-detail",
+                args=[self.subsite_datasets.slug, admin.id]
+            )
+        )
+        self.assertEqual(200, response.status_code)
+        payload = response.json()['user']
+        self.assertEqual('admin', payload.get("username"))
+        self.assertListEqual(['add_resource'], payload.get("perms"))
+        self.subsite_datasets.can_add_resource = False
+        self.subsite_datasets.save()
+
+    def test_api_router(self):
+        '''
+        Be sure that the URL refer to the subsite
+        '''
+        url = f"/{self.subsite_japan.slug}/api/v2/"
+        response = self.client.get(url)
+        self.assertEqual(200, response.status_code)
+        for _url in response.json().values():
+            self.assertTrue(f'/{self.subsite_japan.slug}/' in _url)
+
+    def test_api_facets_have_their_own_url(self):
+        '''
+        Be sure that the URL refer to the subsite
+        '''
+        url = f"/{self.subsite_japan.slug}/api/v2/"
+        response = self.client.get(url)
+        self.assertEqual(200, response.status_code)
+        self.assertTrue(f'http://localhost:8000/{self.subsite_japan.slug}/api/v2/facets' in response.json().values())
+
+    @override_settings(SUBSITE_READ_ONLY=False)
+    def test_perms_compact_for_subsite(self):
+        '''
+        By default only view and download perms are provided
+        '''
+        # The subsite from the test dosn't have any perms since the signal is not called
+        url = f"/{self.subsite_japan.slug}/api/v2/resources/{self.dataset_japan.id}"
+        response = self.client.get(url)
+        self.assertEqual(200, response.status_code)
+        perms = response.json().get('resource')['perms']
+        self.assertListEqual([], perms)
+        
+        # if we add owner and edit
+        self.subsite_japan.allowed_permissions = ['owner', 'edit']
+        self.subsite_japan.save()
+        response = self.client.get(url)
+        self.assertEqual(200, response.status_code)
+        perms = response.json().get('resource')['perms']
+        # only download and view are returned since the can_add_resource is FALSE by default
+        self.assertListEqual(['download_resourcebase', 'view_resourcebase'], perms)
+        
+        # updating the can_add_resource
+        self.subsite_japan.can_add_resource = True
+        self.subsite_japan.save()

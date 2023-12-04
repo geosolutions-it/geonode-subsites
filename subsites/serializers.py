@@ -7,13 +7,12 @@ from geonode.layers.api.serializers import DatasetSerializer, DatasetListSeriali
 from geonode.maps.api.serializers import MapSerializer
 from django.conf import settings
 from geonode.security.permissions import (
-    get_compact_perms_list,
     _to_extended_perms,
     OWNER_RIGHTS,
 )
 from geonode.base.models import ResourceBase
 import itertools
-from guardian.backends import check_user_support
+from rest_framework.exceptions import NotFound
 
 
 class SubsiteUserSerializer(UserSerializer):
@@ -24,6 +23,8 @@ class SubsiteUserSerializer(UserSerializer):
 
 def apply_subsite_changes(data, request, instance):
     subsite = extract_subsite_slug_from_request(request)
+    if not subsite:
+        raise NotFound(detail="Subsite not found")
     if "detail_url" in data:
         data["detail_url"] = data["detail_url"].replace(
             "catalogue/", f"{subsite}/catalogue/"
@@ -61,6 +62,11 @@ def apply_subsite_changes(data, request, instance):
         if "download_resourcebase" not in user_allowed_perms:
             data["download_url"] = None
             data["download_urls"] = None
+
+    if not subsite.can_add_resource and data.get('perms', None):
+        _perms_list = list(data['perms'])
+        data['perms'] = [perm for perm in _perms_list if perm != 'add_resource']
+
     return data
 
 

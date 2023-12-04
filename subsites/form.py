@@ -10,6 +10,7 @@ from subsites.models import SubSite
 
 logger = logging.getLogger("geonode")
 
+
 class SubsiteAdminModelForm(forms.ModelForm):
     def get_choices():
         resource_types = [
@@ -41,17 +42,30 @@ class SubsiteAdminModelForm(forms.ModelForm):
             "Max allowed permissions that the users who vistis the subsite will have."
             "If no permissions are selected, view and download are automatically assigned."
             "NOTE: no additional permissions are added to the user"
-        )
+        ),
     )
 
     class Meta:
         model = SubSite
-        fields = ("slug", "theme", "logo", "description", "types", "region", "category", "keyword", "groups")
+        fields = (
+            "slug",
+            "theme",
+            "can_add_resource",
+            "logo",
+            "description",
+            "types",
+            "region",
+            "category",
+            "keyword",
+            "groups",
+        )
 
     def save(self, commit=True):
         super().save(commit=commit)
         if not self.instance.allowed_permissions:
-            logger.warning("No permissions set, at least view and download are automatically assigned")
-            self.instance.allowed_permissions = ['view', 'download']
+            logger.warning(
+                "No permissions set, at least view and download are automatically assigned"
+            )
+            self.instance.allowed_permissions = ["view", "download"]
             self.instance.save()
         return self.instance
