@@ -1,3 +1,4 @@
+from django.test import override_settings
 from mock import MagicMock
 from subsites.models import SubSite
 from django.shortcuts import reverse
@@ -415,6 +416,45 @@ class SubsiteTestCase(APITestCase):
         self.subsite_datasets.save()
 
     def test_api_router(self):
+        '''
+        Be sure that the URL refer to the subsite
+        '''
         url = f"/{self.subsite_japan.slug}/api/v2/"
         response = self.client.get(url)
         self.assertEqual(200, response.status_code)
+        for _url in response.json().values():
+            self.assertTrue(f'/{self.subsite_japan.slug}/' in _url)
+
+    def test_api_facets_have_their_own_url(self):
+        '''
+        Be sure that the URL refer to the subsite
+        '''
+        url = f"/{self.subsite_japan.slug}/api/v2/"
+        response = self.client.get(url)
+        self.assertEqual(200, response.status_code)
+        self.assertTrue(f'http://localhost:8000/{self.subsite_japan.slug}/api/v2/facets' in response.json().values())
+
+    @override_settings(SUBSITE_READ_ONLY=False)
+    def test_perms_compact_for_subsite(self):
+        '''
+        By default only view and download perms are provided
+        '''
+        # The subsite from the test dosn't have any perms since the signal is not called
+        url = f"/{self.subsite_japan.slug}/api/v2/resources/{self.dataset_japan.id}"
+        response = self.client.get(url)
+        self.assertEqual(200, response.status_code)
+        perms = response.json().get('resource')['perms']
+        self.assertListEqual([], perms)
+        
+        # if we add owner and edit
+        self.subsite_japan.allowed_permissions = ['owner', 'edit']
+        self.subsite_japan.save()
+        response = self.client.get(url)
+        self.assertEqual(200, response.status_code)
+        perms = response.json().get('resource')['perms']
+        # only download and view are returned since the can_add_resource is FALSE by default
+        self.assertListEqual(['download_resourcebase', 'view_resourcebase'], perms)
+        
+        # updating the can_add_resource
+        self.subsite_japan.can_add_resource = True
+        self.subsite_japan.save()
