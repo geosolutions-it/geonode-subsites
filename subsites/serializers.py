@@ -61,6 +61,11 @@ def apply_subsite_changes(data, request, instance):
         if "download_resourcebase" not in user_allowed_perms:
             data["download_url"] = None
             data["download_urls"] = None
+
+    if subsite and not subsite.can_add_resource and data.get('perms', None):
+        _perms_list = list(data['perms'])
+        data['perms'] = [perm for perm in _perms_list if perm != 'add_resource']
+
     return data
 
 

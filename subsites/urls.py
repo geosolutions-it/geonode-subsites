@@ -9,7 +9,7 @@ from subsites.router import SubSiteDynamicRouter
 
 router = SubSiteDynamicRouter()
 
-router.register(r"users", views.SubsiteUserViewSet, "users")
+router.register(r"users", views.SubsiteUserViewSet, "subsite_users")
 router.register(r"groups", resourcebase_view.GroupViewSet, "group-profiles")
 router.register(r"resources", views.SubsiteResourceBaseViewSet, "base-resources")
 router.register(r"owners", resourcebase_view.OwnerViewSet, "owners")

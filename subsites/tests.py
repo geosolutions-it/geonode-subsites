@@ -1,4 +1,4 @@
-from mock import MagicMock, patch
+from mock import MagicMock
 from subsites.models import SubSite
 from django.shortcuts import reverse
 from geonode.base.models import GroupProfile, HierarchicalKeyword, Region, TopicCategory
@@ -6,6 +6,7 @@ from geonode.base.populate_test_data import create_single_dataset
 from geonode.themes.models import GeoNodeThemeCustomization
 from rest_framework.test import APITestCase
 from django.contrib.auth import get_user_model
+
 
 from subsites.views import bridge_view
 
@@ -107,11 +108,11 @@ class SubsiteTestCase(APITestCase):
         cls.subsite_groups.region.add(*[cls.region_italy, cls.region_japan])
 
         cls.subsite_datasets, _ = SubSite.objects.get_or_create(
-            slug="subsite_dataset", theme=cls.theme1, resource_type="dataset"
+            slug="subsite_dataset", theme=cls.theme1, types=["dataset"]
         )
 
         cls.subsite_geoapp, _ = SubSite.objects.get_or_create(
-            slug="subsite_geoapp", theme=cls.theme1, resource_type="geoapp"
+            slug="subsite_geoapp", theme=cls.theme1, types=["geoapp"]
         )
 
         cls.subsite_no_condition, _ = SubSite.objects.get_or_create(
@@ -380,3 +381,35 @@ class SubsiteTestCase(APITestCase):
             reverse("subsite_home", args=[self.subsite_datasets.slug])
         )
         self.assertEqual(200, response.status_code)
+
+    def test_subsite_can_add_resource_is_false(self):
+        admin = get_user_model().objects.get(username='admin')
+        self.client.login(username="admin", password="admin")
+        response = self.client.get(
+            reverse(
+                "subsite_users-detail",
+                args=[self.subsite_datasets.slug, admin.id]
+            )
+        )
+        self.assertEqual(200, response.status_code)
+        payload = response.json()['user']
+        self.assertEqual('admin', payload.get("username"))
+        self.assertListEqual([], payload.get("perms"))
+
+    def test_subsite_can_add_resource_is_true(self):
+        self.subsite_datasets.can_add_resource = True
+        self.subsite_datasets.save()
+        admin = get_user_model().objects.get(username='admin')
+        self.client.login(username="admin", password="admin")
+        response = self.client.get(
+            reverse(
+                "subsite_users-detail",
+                args=[self.subsite_datasets.slug, admin.id]
+            )
+        )
+        self.assertEqual(200, response.status_code)
+        payload = response.json()['user']
+        self.assertEqual('admin', payload.get("username"))
+        self.assertListEqual(['add_resource'], payload.get("perms"))
+        self.subsite_datasets.can_add_resource = False
+        self.subsite_datasets.save()
