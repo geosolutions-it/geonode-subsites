@@ -57,7 +57,8 @@ def subsite_get_user_menu(context, request):
 def subsite_get_base_right_topbar_menu(context, request):
     subsite = extract_subsite_slug_from_request(request)
     if subsite:
-        return []
+        # we always want to have the homepage as the main site
+        return [{"type": "link", "href": "/", "label": "Home"}]
     return get_base_right_topbar_menu(context)
 
 
@@ -83,7 +84,7 @@ def subsite_catalogue_home(context):
     if context and 'request' in context:
         current_path = context['request'].path
         subsite = extract_subsite_slug_from_request(context['request'])
-        if current_path == '/':
+        if current_path == '/' or (subsite and current_path == f'/{subsite.slug}/'):
             _path = "/"
         elif current_path.find('/catalogue') == 0:
             _path = "#"
