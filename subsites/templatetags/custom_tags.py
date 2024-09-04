@@ -36,9 +36,9 @@ def load_subsite_queryset():
     return qr
 
 
-@register.simple_tag(takes_context=True)
-def subsite_get_base_left_topbar_menu(context, request):
-    result = get_base_left_topbar_menu(context)
+@register.simple_tag
+def subsite_get_base_left_topbar_menu(request):
+    result = get_base_left_topbar_menu()
     subsite = extract_subsite_slug_from_request(request)
     if subsite:
         result = _update_url_with_subsite(result, subsite)
