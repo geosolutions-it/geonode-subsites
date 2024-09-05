@@ -1,4 +1,4 @@
-from geonode.base.api.serializers import UserSerializer
+from geonode.people.api.serializers import UserSerializer
 from geonode.base.api.serializers import ResourceBaseSerializer
 from subsites.utils import extract_subsite_slug_from_request
 from geonode.documents.api.serializers import DocumentSerializer

@@ -1,7 +1,8 @@
 from datetime import datetime
 from django.conf import settings
 from django.views.generic import TemplateView
-from geonode.base.api.views import ResourceBaseViewSet, UserViewSet
+from geonode.base.api.views import ResourceBaseViewSet
+from geonode.people.api.views import UserViewSet
 from geonode.documents.api.views import DocumentViewSet
 from geonode.geoapps.api.views import GeoAppViewSet
 from geonode.layers.api.views import DatasetViewSet
