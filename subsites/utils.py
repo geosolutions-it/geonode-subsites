@@ -53,8 +53,9 @@ def subsite_render_to_string(
     The subsite template structure must match the default geonode one
     """
     # creating the subsite template path
-    _project_path = f"{settings.LOCAL_ROOT}/templates/subsites/{slug}/"
-    _project_common_path = f"{settings.LOCAL_ROOT}/templates/subsites/common/"
+    root = settings.LOCAL_ROOT if hasattr(settings, 'LOCAL_ROOT') else settings.PROJECT_ROOT
+    _project_path = f"{root}/templates/subsites/{slug}/"
+    _project_common_path = f"{root}/templates/subsites/common/"
     payload = {}
     # retrieve the settings information
     options = subsite_get_settings()

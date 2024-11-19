@@ -10,19 +10,9 @@ Add in the geonode settings the following code
 ```
 ENABLE_SUBSITE_CUSTOM_THEMES = True
 INSTALLED_APPS += ("subsites",)
-ENABLE_CATALOG_HOME_REDIRECTS_TO = True/False
+ENABLE_CATALOG_HOME_REDIRECTS_TO = False
+SUBSITE_READ_ONLY = True/False # return download_resourcebase and view resourcebase as permissions
 ```
-
-`ENABLE_SUBSITE_CUSTOM_THEMES:` Enable the subsite login inside the app
-
-## Include URLS
-
-include the following into the project URLs.py
-
-```python
-url(r"", include("subsites.urls")),
-```
-
 
 ## How to configure a subsite
 
@@ -69,6 +59,40 @@ Keyword selected for subsite1 -> key1
 Region selected for subsite1 -> Italy
 means that only the resources with associated the keyword `key1` and as region `Italy` are going to be returned
 ```
+
+## Exclusive keyword
+
+During the app initialization the subsite will automatically generate a keyword named `subsite_exclusive`. Each resource with this keyword assigned, will be escluded from the global catalogue (this is valid also for the API/v2 `/resources`, `/datasets`, `/documents`, `/maps`, `/geoapps` )
+
+**NOTE:** The `subsite_exclusive` keyword is used to exclude a resource from the global catalog. This keyword is commonly applied to all resources. If a resource needs to be accessible only within a specific subsite, utilize the additional configuration provided by that subsite to filter it out from other subsites.
+
+For example:
+
+```
+resource1 -> no keyword
+resource2 -> keyword1 assinged
+resource3 -> subsite_exclusive keyword assigned
+
+Call -> http://localhost:8000/#/
+    - will return resource1 and resource2
+```
+
+Via API/v2 `/resources`, `/datasets`, `/documents`, `/maps`, `/geoapps` is possible to return all the value even if the `subsite_exclusive` keyword is set
+For example:
+
+```
+resource1 -> no keyword
+resource2 -> keyword1 assinged
+resource3 -> subsite_exclusive keyword assigned
+
+Call -> http://localhost:8000/api/v2/resources/
+    - will return resource1 and resource2
+
+    
+Call -> http://localhost:8000/api/v2/resources/?return_all=true
+    - will return resource1, resource2 and resource3
+```
+
 
 # Override Subsite template
 

@@ -388,7 +388,7 @@ class SubsiteTestCase(APITestCase):
         self.client.login(username="admin", password="admin")
         response = self.client.get(
             reverse(
-                "subsite_users-detail",
+                "users-detail",
                 args=[self.subsite_datasets.slug, admin.id]
             )
         )
@@ -404,7 +404,7 @@ class SubsiteTestCase(APITestCase):
         self.client.login(username="admin", password="admin")
         response = self.client.get(
             reverse(
-                "subsite_users-detail",
+                "users-detail",
                 args=[self.subsite_datasets.slug, admin.id]
             )
         )
@@ -453,8 +453,47 @@ class SubsiteTestCase(APITestCase):
         self.assertEqual(200, response.status_code)
         perms = response.json().get('resource')['perms']
         # only download and view are returned since the can_add_resource is FALSE by default
-        self.assertListEqual(['download_resourcebase', 'view_resourcebase'], perms)
+        self.assertSetEqual({'download_resourcebase', 'view_resourcebase'}, set(perms))
         
         # updating the can_add_resource
         self.subsite_japan.can_add_resource = True
         self.subsite_japan.save()
+
+    def test_calling_home_should_return_all_resources(self):
+        """
+        If no resources has the subsite_exclusive keyword, all the resources
+        should be returned in the catalog home
+        """
+        url = reverse('base-resources-list')
+        response = self.client.get(url)
+        self.assertTrue(response.json()['total'] == 6)
+
+    def test_calling_home_should_exclude_subsite_only_resources(self):
+        """
+        The resources with keyword subsite_exclusive should be removed from the
+        default catalog view
+        """
+        dataset = create_single_dataset("this_will_be_exclusive")
+        kw, _ = HierarchicalKeyword.objects.get_or_create(slug="subsite_exclusive")
+        dataset.keywords.add(kw)
+        dataset.save()
+        url = reverse('base-resources-list')
+        response = self.client.get(url)
+        # should be invisible to the default base resource list
+        self.assertTrue(response.json()['total'] == 6)
+        dataset.delete()
+
+    def test_calling_home_should_return_even_the_exclusive_if_requested(self):
+        """
+        The resources with keyword subsite_exclusive should be removed from the
+        default catalog view
+        """
+        dataset = create_single_dataset("this_will_be_exclusive")
+        kw, _ = HierarchicalKeyword.objects.get_or_create(slug="subsite_exclusive")
+        dataset.keywords.add(kw)
+        dataset.save()
+        url = reverse('base-resources-list')
+        response = self.client.get(f"{url}?return_all=true")
+        # should be invisible to the default base resource list
+        self.assertTrue(response.json()['total'] == 7)
+        dataset.delete()

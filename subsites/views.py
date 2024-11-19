@@ -1,5 +1,6 @@
 from datetime import datetime
 from django.conf import settings
+from django.http import Http404
 from django.views.generic import TemplateView
 from geonode.base.api.views import ResourceBaseViewSet
 from geonode.people.api.views import UserViewSet
@@ -7,19 +8,22 @@ from geonode.documents.api.views import DocumentViewSet
 from geonode.geoapps.api.views import GeoAppViewSet
 from geonode.layers.api.views import DatasetViewSet
 from geonode.maps.api.views import MapViewSet
-from geonode.views import handler404
 from subsites import serializers
 from subsites.utils import extract_subsite_slug_from_request, subsite_render
-from django.shortcuts import redirect
+from django.shortcuts import redirect, render
 from geonode.base.models import ResourceBase
 from geonode.utils import resolve_object
 from geonode.facets.views import ListFacetsView, GetFacetView
+from geonode.base.models import HierarchicalKeyword
+from distutils.util import strtobool
 
 
 def subsite_home(request, subsite):
     slug = extract_subsite_slug_from_request(request, return_object=False)
     if not slug:
-        return handler404(request, None)
+        response = render(request, "404.html")
+        response.status_code = 404
+        return response
 
     return subsite_render(request, "index.html", slug=slug)
 
@@ -31,7 +35,7 @@ def bridge_view(request, subsite, **kwargs):
 def resolve_uuid(request, subsite, uuid):
     slug = extract_subsite_slug_from_request(request, return_object=False)
     if not slug:
-        return handler404(request, None)
+        raise Http404(request, None)
     resource = resolve_object(request, ResourceBase, {"uuid": uuid})
     return redirect(f"/{slug}{resource.detail_url}")
 
@@ -99,11 +103,11 @@ class SubsiteCatalogueViewSet(TemplateView):
     def get(self, request, *args, **kwargs):
         subsite = extract_subsite_slug_from_request(request)
         if subsite is None:
-            raise handler404(request, None)
+            raise Http404(request, None)
         context = self.get_context_data(**kwargs)
         slug = extract_subsite_slug_from_request(request, return_object=False)
         if not slug:
-            raise handler404(request, None)
+            raise Http404(request, None)
         return subsite_render(
             request, context["view"].template_name, context=context, slug=slug
         )
@@ -127,3 +131,40 @@ class SubsiteGetFacetView(GetFacetView):
     def _prefilter_topics(cls, request):
         qr = super()._prefilter_topics(request)
         return retrieve_subsite_queryset(qr, request=request)
+
+
+# Main API handling
+
+
+class BaseKeywordExlusionMixin:
+
+    def get_queryset(self, queryset=None):
+        qr = super().get_queryset(queryset)
+        try:
+            return_all = strtobool(self.request.query_params.get("return_all", "None"))
+            if return_all:
+                return qr
+        except Exception:
+            pass
+        k, _ = HierarchicalKeyword.objects.get_or_create(slug="subsite_exclusive")
+        return qr.exclude(keywords__in=[k])
+
+
+class OverrideResourceBaseViewSet(BaseKeywordExlusionMixin, ResourceBaseViewSet):
+    pass
+
+
+class OverrideDocumentViewSet(BaseKeywordExlusionMixin, DocumentViewSet):
+    pass
+
+
+class OverrideDatasetViewSet(BaseKeywordExlusionMixin, DatasetViewSet):
+    pass
+
+
+class OverrideMapViewSet(BaseKeywordExlusionMixin, MapViewSet):
+    pass
+
+
+class OverrideGeoAppViewSet(BaseKeywordExlusionMixin, GeoAppViewSet):
+    pass
