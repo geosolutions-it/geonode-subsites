@@ -136,7 +136,7 @@ class SubsiteGetFacetView(GetFacetView):
 # Main API handling
 
 
-class BaseKeywordExlusionMixin:
+class BaseKeywordExclusionMixin:
 
     def get_queryset(self, queryset=None):
         qr = super().get_queryset(queryset)
@@ -150,21 +150,21 @@ class BaseKeywordExlusionMixin:
         return qr.exclude(keywords__in=[k])
 
 
-class OverrideResourceBaseViewSet(BaseKeywordExlusionMixin, ResourceBaseViewSet):
+class OverrideResourceBaseViewSet(BaseKeywordExclusionMixin, ResourceBaseViewSet):
     pass
 
 
-class OverrideDocumentViewSet(BaseKeywordExlusionMixin, DocumentViewSet):
+class OverrideDocumentViewSet(BaseKeywordExclusionMixin, DocumentViewSet):
     pass
 
 
-class OverrideDatasetViewSet(BaseKeywordExlusionMixin, DatasetViewSet):
+class OverrideDatasetViewSet(BaseKeywordExclusionMixin, DatasetViewSet):
     pass
 
 
-class OverrideMapViewSet(BaseKeywordExlusionMixin, MapViewSet):
+class OverrideMapViewSet(BaseKeywordExclusionMixin, MapViewSet):
     pass
 
 
-class OverrideGeoAppViewSet(BaseKeywordExlusionMixin, GeoAppViewSet):
+class OverrideGeoAppViewSet(BaseKeywordExclusionMixin, GeoAppViewSet):
     pass
