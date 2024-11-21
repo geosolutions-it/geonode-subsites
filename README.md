@@ -12,6 +12,7 @@ ENABLE_SUBSITE_CUSTOM_THEMES = True
 INSTALLED_APPS += ("subsites",)
 ENABLE_CATALOG_HOME_REDIRECTS_TO = False
 SUBSITE_READ_ONLY = True/False # return download_resourcebase and view resourcebase as permissions
+SUBSITE_HIDE_EXCLUSIVE_FROM_SPECIFIC_API = False # If TRUE will hide the `subsite_exclusive` resources also from the detailed endpoint `/documents`, `/maps`, `/datasets`, '/geoapps`
 ```
 
 ## How to configure a subsite
@@ -77,7 +78,12 @@ Call -> http://localhost:8000/#/
     - will return resource1 and resource2
 ```
 
-Via API/v2 `/resources`, `/datasets`, `/documents`, `/maps`, `/geoapps` is possible to return all the value even if the `subsite_exclusive` keyword is set
+Via API/v2 `/resources`, `/datasets`, `/documents`, `/maps`, `/geoapps` to hide the resources marked as `subsite_exclusive` enable the following setting:
+```
+SUBSITE_HIDE_EXCLUSIVE_FROM_SPECIFIC_API = True
+```
+
+If enabled, is possible to return all the value even if the `subsite_exclusive` keyword is set
 For example:
 
 ```
