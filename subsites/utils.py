@@ -7,13 +7,13 @@ from django.template.backends.django import DjangoTemplates
 from subsites.models import SubSite
 from django.core.cache import caches
 
-subsite_cache = caches["subsite_cache"]
-
 
 def extract_subsite_slug_from_request(request, return_object=True):
     """
     Return the Subsite object or None if not exists or not Enabled
     """
+    subsite_cache = caches["subsite_cache"]
+
     if request and request.resolver_match and 'subsites.' in request.resolver_match._func_path.lower():
         url = request.path.split("/")
         split_path = list(filter(None, url))
