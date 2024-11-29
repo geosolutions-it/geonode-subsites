@@ -42,7 +42,7 @@ def apply_subsite_changes(data, request, instance):
         )
     if "embed_url" in data:
         data["embed_url"] = build_absolute_uri(
-            f"{subsite}{instance.get_real_instance().embed_url}"
+            f"/{subsite}{instance.get_real_instance().embed_url}"
         )
 
     # checking users perms based on the subsite_one

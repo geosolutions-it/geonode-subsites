@@ -7,6 +7,8 @@ from geonode.maps.views import map_embed
 from geonode.documents.views import document_embed
 from geonode.layers.views import dataset_embed
 from geonode.geoapps.views import geoapp_edit
+from geonode.base.views import resourcebase_embed
+
 
 from subsites import views
 from subsites.router import SubSiteDynamicRouter
@@ -28,6 +30,12 @@ router.register(r"maps", views.SubsiteMapViewSet, "maps")
 router.register(r"executionrequest", ExecutionRequestViewset, "executionrequest")
 
 urlpatterns = [
+    re_path(
+        r"^(?P<subsite>[^/]*)/resources/(?P<resourceid>\d+)/embed/?$",
+        views.embed_view,
+        name="resourcebase_embed",
+        kwargs={"view": resourcebase_embed, "template": "base/base_embed.html"},
+    ),
     re_path(
         r"^(?P<subsite>[^/]*)/documents/(?P<resourceid>\d+)/embed/?$",
         views.embed_view,
