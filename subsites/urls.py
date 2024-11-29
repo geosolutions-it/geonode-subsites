@@ -3,6 +3,10 @@ from django.urls import path, re_path
 from geonode.api.views import admin_role, roles, user_info, users, verify_token
 from geonode.base.api.urls import views as resourcebase_view
 from geonode.resource.api.views import ExecutionRequestViewset
+from geonode.maps.views import map_embed
+from geonode.documents.views import document_embed
+from geonode.layers.views import dataset_embed
+from geonode.geoapps.views import geoapp_edit
 
 from subsites import views
 from subsites.router import SubSiteDynamicRouter
@@ -24,6 +28,30 @@ router.register(r"maps", views.SubsiteMapViewSet, "maps")
 router.register(r"executionrequest", ExecutionRequestViewset, "executionrequest")
 
 urlpatterns = [
+    re_path(
+        r"^(?P<subsite>[^/]*)/documents/(?P<resourceid>\d+)/embed/?$",
+        views.embed_view,
+        name="document_embed",
+        kwargs={"view": document_embed},
+    ),
+    re_path(
+        r"^(?P<subsite>[^/]*)/maps/(?P<resourceid>[^/]+)/embed$",
+        views.embed_view,
+        name="map_embed",
+        kwargs={"view": map_embed},
+    ),
+    re_path(
+        r"^(?P<subsite>[^/]*)/datasets/(?P<resourceid>[^/]+)/embed$",
+        views.embed_view,
+        name="dataset_embed",
+        kwargs={"view": dataset_embed},
+    ),
+    re_path(
+        r"^(?P<subsite>[^/]*)/apps/(?P<resourceid>[^/]+)/embed$",
+        views.embed_view,
+        name="geoapp_edit",
+        kwargs={"view": geoapp_edit, "template": "apps/app_embed.html"},
+    ),
     re_path(
         r"^(?P<subsite>[^/]*)/api/o/v4/tokeninfo",
         views.bridge_view,

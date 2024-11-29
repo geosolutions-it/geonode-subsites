@@ -13,6 +13,7 @@ from geonode.security.permissions import (
     OWNER_RIGHTS,
 )
 from geonode.base.models import ResourceBase
+from geonode.utils import build_absolute_uri
 import itertools
 from rest_framework.exceptions import NotFound
 
@@ -39,6 +40,11 @@ def apply_subsite_changes(data, request, instance):
         data["detail_url"] = data["detail_url"].replace(
             "catalogue/", f"{subsite}/catalogue/"
         )
+    if "embed_url" in data:
+        data["embed_url"] = build_absolute_uri(
+            f"{subsite}{instance.get_real_instance().embed_url}"
+        )
+
     # checking users perms based on the subsite_one
     if "perms" in data and isinstance(instance, ResourceBase):
         if getattr(settings, "SUBSITE_READ_ONLY", False):
@@ -79,11 +85,14 @@ def apply_subsite_changes(data, request, instance):
 
     # fixup linked resources
     if "linked_resources" in data:
-        data["linked_resources"] = {"linked_to": fixup_linked_resources(
-            data["linked_resources"]["linked_to"], subsite=subsite
-        ), "linked_by": fixup_linked_resources(
-            data["linked_resources"]["linked_by"], subsite=subsite
-        )}
+        data["linked_resources"] = {
+            "linked_to": fixup_linked_resources(
+                data["linked_resources"]["linked_to"], subsite=subsite
+            ),
+            "linked_by": fixup_linked_resources(
+                data["linked_resources"]["linked_by"], subsite=subsite
+            ),
+        }
 
     return data
 

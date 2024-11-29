@@ -31,6 +31,11 @@ def subsite_home(request, subsite):
 def bridge_view(request, subsite, **kwargs):
     return kwargs["view"](request)
 
+def embed_view(request, subsite, **kwargs):
+    _view = kwargs.pop('view')
+    pk = kwargs.pop('resourceid')
+    return _view(request, pk, **kwargs)
+
 
 def resolve_uuid(request, subsite, uuid):
     slug = extract_subsite_slug_from_request(request, return_object=False)
