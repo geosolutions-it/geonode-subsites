@@ -12,3 +12,28 @@
         createLayer = false
     {% endif %}
 {% endblock %}
+
+{% block override_local_config %}
+
+{% load_subsite_info request as subsite_slug%}
+
+{% if subsite_slug %}
+<script>
+    window.__GEONODE_CONFIG__.overrideLocalConfig = function(localConfig) {
+        // this function must return always a valid localConfig json object
+        // update services URL for subsite
+        let catalogueConfig = localConfig['plugins']['catalogue'][0]
+        let dataset_page = catalogueConfig['cfg']['datasetsPage']['menuItems'][0]
+        let updatedMenuItem = dataset_page['items']
+        let serviceItem = updatedMenuItem[updatedMenuItem.length - 1]
+        // update the href value, we can set back the localconfig
+        serviceItem['href'] = "/{{subsite_slug}}" + serviceItem['href']
+        updatedMenuItem[updatedMenuItem.length - 1] = serviceItem
+        dataset_page['items'] = updatedMenuItem
+        catalogueConfig['cfg']['datasetsPage']['menuItems'][0] = dataset_page
+        localConfig['plugins']['catalogue'][0] = catalogueConfig
+        return localConfig;
+    };
+</script>
+{% endif %}
+{% endblock %}
