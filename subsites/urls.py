@@ -8,6 +8,7 @@ from geonode.documents.views import document_embed
 from geonode.layers.views import dataset_embed
 from geonode.geoapps.views import geoapp_edit
 from geonode.base.views import resourcebase_embed
+from geonode.services.views import services, register_service
 
 
 from subsites import views
@@ -85,6 +86,14 @@ urlpatterns = [
         name="adminRole",
         kwargs={"view": admin_role},
     ),
+    re_path(
+        r"^(?P<subsite>[^/]*)/services/",
+        views.bridge_view,
+        name="services",
+        kwargs={"view": services},
+    ),
+    re_path(r"^(?P<subsite>[^/]*)/services/register/$", views.bridge_view, name="register_service", kwargs={"view": register_service}),
+    re_path(r"^(?P<subsite>[^/]*)/services/", include("geonode.services.urls")),
     path(
         r"<str:subsite>/api/v2/facets/<facet>",
         views.SubsiteGetFacetView.as_view(),
