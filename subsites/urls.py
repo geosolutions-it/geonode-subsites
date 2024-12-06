@@ -9,7 +9,7 @@ from geonode.layers.views import dataset_embed
 from geonode.geoapps.views import geoapp_edit
 from geonode.base.views import resourcebase_embed
 from geonode.services.views import services, register_service
-
+from importer.api.views import ImporterViewSet, ResourceImporter
 
 from subsites import views
 from subsites.router import SubSiteDynamicRouter
@@ -31,6 +31,17 @@ router.register(r"maps", views.SubsiteMapViewSet, "maps")
 router.register(r"executionrequest", ExecutionRequestViewset, "executionrequest")
 
 urlpatterns = [
+    re_path(
+        r"^(?P<subsite>[^/]*)/api/v2/uploads/upload/?$",
+        ImporterViewSet.as_view({"post": "create"}),
+        name="importer_upload",
+    ),
+    
+    re_path(
+        r"^(?P<subsite>[^/]*)/resources/(?P<pk>\w+)/copy",
+        ResourceImporter.as_view({"put": "copy"}),
+        name="importer_resource_copy",
+    ),
     re_path(
         r"^(?P<subsite>[^/]*)/resources/(?P<resourceid>\d+)/embed/?$",
         views.embed_view,
