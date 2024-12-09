@@ -3,6 +3,13 @@ from django.urls import path, re_path
 from geonode.api.views import admin_role, roles, user_info, users, verify_token
 from geonode.base.api.urls import views as resourcebase_view
 from geonode.resource.api.views import ExecutionRequestViewset
+from geonode.maps.views import map_embed
+from geonode.documents.views import document_embed
+from geonode.layers.views import dataset_embed
+from geonode.geoapps.views import geoapp_edit
+from geonode.base.views import resourcebase_embed
+from geonode.services.views import services, register_service
+from importer.api.views import ImporterViewSet, ResourceImporter
 
 from subsites import views
 from subsites.router import SubSiteDynamicRouter
@@ -24,6 +31,47 @@ router.register(r"maps", views.SubsiteMapViewSet, "maps")
 router.register(r"executionrequest", ExecutionRequestViewset, "executionrequest")
 
 urlpatterns = [
+    re_path(
+        r"^(?P<subsite>[^/]*)/api/v2/uploads/upload/?$",
+        ImporterViewSet.as_view({"post": "create"}),
+        name="importer_upload",
+    ),
+    
+    re_path(
+        r"^(?P<subsite>[^/]*)/resources/(?P<pk>\w+)/copy",
+        ResourceImporter.as_view({"put": "copy"}),
+        name="importer_resource_copy",
+    ),
+    re_path(
+        r"^(?P<subsite>[^/]*)/resources/(?P<resourceid>\d+)/embed/?$",
+        views.embed_view,
+        name="resourcebase_embed",
+        kwargs={"view": resourcebase_embed, "template": "base/base_embed.html"},
+    ),
+    re_path(
+        r"^(?P<subsite>[^/]*)/documents/(?P<resourceid>\d+)/embed/?$",
+        views.embed_view,
+        name="document_embed",
+        kwargs={"view": document_embed},
+    ),
+    re_path(
+        r"^(?P<subsite>[^/]*)/maps/(?P<resourceid>[^/]+)/embed$",
+        views.embed_view,
+        name="map_embed",
+        kwargs={"view": map_embed},
+    ),
+    re_path(
+        r"^(?P<subsite>[^/]*)/datasets/(?P<resourceid>[^/]+)/embed$",
+        views.embed_view,
+        name="dataset_embed",
+        kwargs={"view": dataset_embed},
+    ),
+    re_path(
+        r"^(?P<subsite>[^/]*)/apps/(?P<resourceid>[^/]+)/embed$",
+        views.embed_view,
+        name="geoapp_edit",
+        kwargs={"view": geoapp_edit, "template": "apps/app_embed.html"},
+    ),
     re_path(
         r"^(?P<subsite>[^/]*)/api/o/v4/tokeninfo",
         views.bridge_view,
@@ -49,6 +97,14 @@ urlpatterns = [
         name="adminRole",
         kwargs={"view": admin_role},
     ),
+    re_path(
+        r"^(?P<subsite>[^/]*)/services/",
+        views.bridge_view,
+        name="services",
+        kwargs={"view": services},
+    ),
+    re_path(r"^(?P<subsite>[^/]*)/services/register/$", views.bridge_view, name="register_service", kwargs={"view": register_service}),
+    re_path(r"^(?P<subsite>[^/]*)/services/", include("geonode.services.urls")),
     path(
         r"<str:subsite>/api/v2/facets/<facet>",
         views.SubsiteGetFacetView.as_view(),

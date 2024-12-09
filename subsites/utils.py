@@ -7,13 +7,13 @@ from django.template.backends.django import DjangoTemplates
 from subsites.models import SubSite
 from django.core.cache import caches
 
-subsite_cache = caches["subsite_cache"]
-
 
 def extract_subsite_slug_from_request(request, return_object=True):
     """
     Return the Subsite object or None if not exists or not Enabled
     """
+    subsite_cache = caches["subsite_cache"]
+
     if request and request.resolver_match and 'subsites.' in request.resolver_match._func_path.lower():
         url = request.path.split("/")
         split_path = list(filter(None, url))
@@ -53,8 +53,9 @@ def subsite_render_to_string(
     The subsite template structure must match the default geonode one
     """
     # creating the subsite template path
-    _project_path = f"{settings.LOCAL_ROOT}/templates/subsites/{slug}/"
-    _project_common_path = f"{settings.LOCAL_ROOT}/templates/subsites/common/"
+    root = settings.LOCAL_ROOT if hasattr(settings, 'LOCAL_ROOT') else settings.PROJECT_ROOT
+    _project_path = f"{root}/templates/subsites/{slug}/"
+    _project_common_path = f"{root}/templates/subsites/common/"
     payload = {}
     # retrieve the settings information
     options = subsite_get_settings()

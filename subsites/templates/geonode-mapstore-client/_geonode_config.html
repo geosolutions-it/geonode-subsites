@@ -12,3 +12,97 @@
         createLayer = false
     {% endif %}
 {% endblock %}
+
+{% block override_local_config %}
+
+{% load_subsite_info request as subsite_slug%}
+
+{% if subsite_slug %}
+<script>
+    window.__GEONODE_CONFIG__.overrideLocalConfig = function(localConfig) {
+        // this function must return always a valid localConfig json object
+        // update services URL for subsite
+        localConfig.plugins.catalogue = localConfig.plugins.catalogue.map(
+            (item) => {
+                if (item.name == 'ResourcesGrid') {
+                    let custom_menuitems = [
+                        {
+                            labelId: 'gnhome.addResource',
+                            disableIf: "{(state('settings') && state('settings').isMobile) || !(state('user') && state('user').perms && state('user').perms.includes('add_resource'))}",
+                            type: 'dropdown',
+                            variant: 'primary',
+                            responsive: true,
+                            noCaret: true,
+                            items: [
+                                {
+                                    labelId: 'gnhome.uploadDataset',
+                                    value: 'layer',
+                                    type: 'link',
+                                    href: '{context.getCataloguePath("/catalogue/#/upload/dataset")}'
+                                },
+                                {
+                                    labelId: 'gnhome.uploadDocument',
+                                    value: 'document',
+                                    type: 'link',
+                                    href: '{context.getCataloguePath("/catalogue/#/upload/document")}'
+                                },
+                                {
+                                    labelId: 'gnhome.createDataset',
+                                    value: 'layer',
+                                    type: 'link',
+                                    href: '/createlayer/',
+                                    disableIf: "{(state('settings') && state('settings').createLayer) ? false : true}"
+                                },
+                                {
+                                    labelId: 'gnhome.createMap',
+                                    value: 'map',
+                                    type: 'link',
+                                    href: '{context.getCataloguePath("/catalogue/#/map/new")}'
+                                },
+                                {
+                                    labelId: 'gnhome.createGeostory',
+                                    value: 'geostory',
+                                    type: 'link',
+                                    href: '{context.getCataloguePath("/catalogue/#/geostory/new")}'
+                                },
+                                {
+                                    labelId: 'gnhome.createDashboard',
+                                    value: 'dashboard',
+                                    type: 'link',
+                                    href: '{context.getCataloguePath("/catalogue/#/dashboard/new")}'
+                                },
+                                {
+                                    labelId: 'gnhome.remoteServices',
+                                    value: 'remote',
+                                    type: 'link',
+                                    href: '/{{subsite}}/services/?limit=5'
+                                }
+                            ]
+                        },
+                        {
+                            type: 'divider'
+                        }
+                    ]
+                    item.cfg.allPage = {"menuItems": custom_menuitems}
+                    item.cfg.menuItems = custom_menuitems
+                    //debugger;
+                    item.cfg.datasetsPage.menuItems = item.cfg.datasetsPage.menuItems.map((menuItem) => {
+                        menuItem.items = menuItem.items.map((element) => {
+                            if (!element['href'].includes("context.getCataloguePath")) {
+                                //debugger;
+                                element['href'] = "{context.getCataloguePath('/{{subsite_slug}}" + element['href'] + "')}" 
+                                //element['href'].replace("context.getCataloguePath('", "context.getCataloguePath('/{{subsite_slug}}")
+                            }
+                            return element
+                        })
+                        return menuItem
+                    })
+                }
+                return item
+            });
+
+        return localConfig;
+    };
+</script>
+{% endif %}
+{% endblock %}
